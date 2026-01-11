@@ -1,3 +1,6 @@
+import nhutImage from '../assets/avatar1.webp';
+import thuImage from '../assets/avatar2.webp';
+
 const memories = [
   { id: 1, image: 'https://vn1.vdrive.vn/alohamedia.vn/2025/02/dc0ef9f664914981865e0d114a39632f.jpg' },
   { id: 2, image: 'https://images2.thanhnien.vn/528068263637045248/2024/1/25/428059e47aeafb68640f168d615371dc-65a11b038315c880-1706156293087602824781.jpg' },
@@ -33,8 +36,8 @@ const galleryData = [
 ];
 
 const profileImages = {
-  nhut: 'https://24hstore.vn/upload_images/images/hinh-nen-anime/hinh-nen-anime-ngau-nam-1.jpg',
-  thu: 'https://inkythuatso.com/uploads/thumbnails/800/2023/03/1-anh-anime-trang-girl-cute-inkythuatso-04-08-14-34.jpg'
+  nhut: nhutImage,
+  thu: thuImage
 };
 
 export { memories, galleryData, profileImages };

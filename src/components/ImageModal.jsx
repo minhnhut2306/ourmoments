@@ -1,12 +1,7 @@
-/* eslint-disable no-undef */
-
-
-
 import React from 'react';
+import { X, Download } from 'lucide-react';
 
 function ImageModal({ image, onClose, onDownload, downloading }) {
-  const { X, Download } = require('lucide-react');
-  
   if (!image) return null;
 
   return (
@@ -39,4 +34,5 @@ function ImageModal({ image, onClose, onDownload, downloading }) {
     </div>
   );
 }
+
 export default ImageModal;

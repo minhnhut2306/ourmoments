@@ -1,6 +1,5 @@
-/* eslint-disable no-undef */
-
-import React from 'react';
+import { useState, useEffect } from 'react';
+import { Grid } from 'lucide-react';
 import { useTimeCounter } from '../hooks/useTimeCounter';
 import HeaderSection from '../components/HeaderSection';
 import MemoryCarousel from '../components/MemoryCarousel';
@@ -8,9 +7,6 @@ import MusicPlayer from '../components/MusicPlayer';
 import { memories } from '../data/constants';
 
 function MainView({ onShowGallery }) {
-  const { useState, useEffect } = require('react');
-  const { Grid } = require('lucide-react');
-  
   const [currentSlide, setCurrentSlide] = useState(0);
   const { timeDisplay, handleTimeClick } = useTimeCounter(1083);
 
@@ -52,4 +48,5 @@ function MainView({ onShowGallery }) {
     </div>
   );
 }
+
 export default MainView;

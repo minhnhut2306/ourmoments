@@ -1,7 +1,6 @@
-/* eslint-disable no-undef */
+import { useEffect } from 'react';
+
 function usePreventSwipe() {
-  const { useEffect } = require('react');
-  
   useEffect(() => {
     document.body.style.overflow = 'hidden';
     document.body.style.position = 'fixed';
@@ -46,4 +45,5 @@ function usePreventSwipe() {
     };
   }, []);
 }
-export default { usePreventSwipe };
+
+export { usePreventSwipe };

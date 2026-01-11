@@ -1,11 +1,8 @@
-
-/* eslint-disable no-undef */
 import React from 'react';
+import { ArrowLeft, Calendar, Download } from 'lucide-react';
 import { galleryData } from '../data/constants';
 
 function Gallery({ onBack, onImageClick }) {
-  const { ArrowLeft, Calendar, Download } = require('lucide-react');
-  
   return (
     <div className="fixed inset-0 overflow-hidden" style={{ touchAction: 'pan-y' }}>
       <div className="w-full h-full overflow-y-auto overflow-x-hidden bg-gradient-to-br from-pink-200 via-purple-200 to-blue-200" style={{ touchAction: 'pan-y' }}>
@@ -64,4 +61,5 @@ function Gallery({ onBack, onImageClick }) {
     </div>
   );
 }
+
 export default Gallery;

@@ -1,8 +1,6 @@
-/* eslint-disable no-undef */
-
+import { useState } from 'react';
 
 function useTimeCounter(initialDays = 1083) {
-  const { useState } = require('react');
   const [days] = useState(initialDays);
   const [timeMode, setTimeMode] = useState(0);
 
@@ -39,4 +37,5 @@ function useTimeCounter(initialDays = 1083) {
 
   return { timeDisplay: getTimeDisplay(), handleTimeClick };
 }
-export default { useTimeCounter };
+
+export { useTimeCounter };

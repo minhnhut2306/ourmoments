@@ -1,12 +1,8 @@
-
-/* eslint-disable no-undef */
 import React from 'react';
+import { Heart } from 'lucide-react';
 import { memories } from '../data/constants';
 
-
 function MemoryCarousel({ currentSlide, onSlideChange }) {
-  const { Heart } = require('lucide-react');
-  
   const getSlideStyle = (index) => {
     const diff = index - currentSlide;
     const totalSlides = memories.length;
@@ -107,4 +103,5 @@ function MemoryCarousel({ currentSlide, onSlideChange }) {
     </div>
   );
 }
+
 export default MemoryCarousel;
