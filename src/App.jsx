@@ -422,25 +422,86 @@ export default function App() {
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl p-4 shadow-lg">
-              <div className="text-center mb-4">
-                <p className="text-sm text-gray-600 font-medium">Lắng nghe lời yêu thương tỏ người ấy</p>
-                <p className="text-xs text-gray-400 mt-1">24-01-2023</p>
+            {/* Music Player Section - Background SVG */}
+            <div className="relative rounded-2xl overflow-hidden shadow-lg">
+              {/* Background - THAY LINK nen-nhac.svg */}
+              <div className="absolute inset-0">
+                <img 
+                  src="YOUR_NEN_NHAC_SVG_LINK_HERE"
+                  alt="Music Player Background"
+                  className="w-full h-full object-cover"
+                />
               </div>
               
-              <div className="flex items-center justify-center">
-                <div className="relative">
-                  <div 
-                    className="w-44 h-44 rounded-full shadow-2xl overflow-hidden animate-spin"
-                    style={{ animationDuration: '10s' }}
-                  >
-                    <img 
-                      src={musicImage}
-                      alt="Music Cover"
-                      className="w-full h-full object-cover"
-                    />
+              {/* Content overlay */}
+              <div className="relative p-5">
+                <div className="text-center mb-4">
+                  <p className="text-sm text-gray-800 font-medium">Lắng nghe lời yêu thương tỏ người ấy</p>
+                </div>
+                
+                <div className="flex items-center justify-between gap-3">
+                  {/* POWER knob */}
+                  <div className="flex-shrink-0">
+                    <svg width="60" height="70" viewBox="0 0 60 70" className="drop-shadow-md">
+                      <circle cx="30" cy="30" r="25" fill="#9ca3af" stroke="#6b7280" strokeWidth="2"/>
+                      <circle cx="30" cy="30" r="18" fill="#4b5563"/>
+                      <circle cx="30" cy="30" r="15" fill="url(#metalGrad)"/>
+                      <line x1="30" y1="18" x2="30" y2="28" stroke="#1f2937" strokeWidth="2.5" strokeLinecap="round"/>
+                      <text x="30" y="58" fontSize="9" textAnchor="middle" fill="#374151" fontWeight="bold">POWER</text>
+                      <defs>
+                        <radialGradient id="metalGrad">
+                          <stop offset="0%" stopColor="#e5e7eb"/>
+                          <stop offset="50%" stopColor="#9ca3af"/>
+                          <stop offset="100%" stopColor="#6b7280"/>
+                        </radialGradient>
+                      </defs>
+                    </svg>
+                  </div>
+
+                  {/* Vinyl record player */}
+                  <div className="relative flex-shrink-0">
+                    <div className="w-40 h-40 rounded-full shadow-2xl overflow-hidden border-4 border-gray-800 bg-black">
+                      <img 
+                        src={musicImage}
+                        alt="Vinyl Record"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
                     
-                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-gradient-to-br from-gray-800 to-gray-900 rounded-full shadow-inner"></div>
+                    {/* Center label */}
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-gradient-to-br from-gray-700 to-gray-900 rounded-full shadow-inner border-2 border-gray-600"></div>
+                    
+                    {/* Pause button */}
+                    <button className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-gray-300 bg-opacity-95 rounded-full shadow-lg flex items-center justify-center hover:bg-opacity-100 transition border-2 border-gray-400">
+                      <div className="flex gap-1">
+                        <div className="w-1.5 h-5 bg-gray-800 rounded-sm"></div>
+                        <div className="w-1.5 h-5 bg-gray-800 rounded-sm"></div>
+                      </div>
+                    </button>
+                    
+                    {/* Tonearm - THAY LINK tay-dia.svg */}
+                    <div className="absolute -top-4 -right-6 w-28 h-28">
+                      <img 
+                        src="YOUR_TAY_DIA_SVG_LINK_HERE"
+                        alt="Tonearm"
+                        className="w-full h-full object-contain drop-shadow-xl"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Volume slider */}
+                  <div className="flex-shrink-0">
+                    <svg width="50" height="140" viewBox="0 0 50 140" className="drop-shadow-md">
+                      <rect x="12" y="10" width="26" height="120" rx="13" fill="#1f2937" stroke="#111827" strokeWidth="2"/>
+                      <rect x="16" y="30" width="18" height="80" rx="9" fill="#374151"/>
+                      <rect x="19" y="35" width="12" height="25" rx="6" fill="#6b7280" stroke="#9ca3af" strokeWidth="1"/>
+                      <line x1="38" y1="75" x2="43" y2="75" stroke="#6b7280" strokeWidth="1.5"/>
+                      <line x1="38" y1="85" x2="43" y2="85" stroke="#6b7280" strokeWidth="1.5"/>
+                      <line x1="38" y1="95" x2="43" y2="95" stroke="#6b7280" strokeWidth="1.5"/>
+                      <line x1="38" y1="105" x2="43" y2="105" stroke="#6b7280" strokeWidth="1.5"/>
+                      <circle cx="45" cy="95" r="3" fill="#4ade80"/>
+                      <circle cx="45" cy="85" r="2.5" fill="#fbbf24"/>
+                    </svg>
                   </div>
                 </div>
               </div>
