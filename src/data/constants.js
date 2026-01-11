@@ -2,7 +2,7 @@ import nhutImage from '../assets/avatar1.webp';
 import thuImage from '../assets/avatar2.webp';
 
 const memories = [
-  { id: 1, image: 'https://vn1.vdrive.vn/alohamedia.vn/2025/02/dc0ef9f664914981865e0d114a39632f.jpg' },
+  { id: 1, image: 'https://i.pinimg.com/564x/77/52/0f/77520f267f58d978053405aea04e4365.jpg' },
   { id: 2, image: 'https://images2.thanhnien.vn/528068263637045248/2024/1/25/428059e47aeafb68640f168d615371dc-65a11b038315c880-1706156293087602824781.jpg' },
   { id: 3, image: 'https://cdn-images.vtv.vn/2018/11/22/photo-3-15428716111551636354706.jpg' },
   { id: 4, image: 'https://i.pinimg.com/236x/f5/36/f4/f536f417b1e901255f572d9fa8f255d8.jpg' },
@@ -13,7 +13,7 @@ const galleryData = [
   {
     date: '11-01-2026',
     items: [
-      { id: 1, type: 'image', url: 'https://vn1.vdrive.vn/alohamedia.vn/2025/02/dc0ef9f664914981865e0d114a39632f.jpg', name: 'memory_11_01_2026_1.jpg' },
+      { id: 1, type: 'image', url: 'https://i.pinimg.com/564x/77/52/0f/77520f267f58d978053405aea04e4365.jpg', name: 'memory_11_01_2026_1.jpg' },
       { id: 2, type: 'image', url: 'https://images2.thanhnien.vn/528068263637045248/2024/1/25/428059e47aeafb68640f168d615371dc-65a11b038315c880-1706156293087602824781.jpg', name: 'memory_11_01_2026_2.jpg' },
       { id: 3, type: 'image', url: 'https://cdn-images.vtv.vn/2018/11/22/photo-3-15428716111551636354706.jpg', name: 'memory_11_01_2026_3.jpg' }
     ]
