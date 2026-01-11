@@ -40,57 +40,82 @@ function MemoryCarousel({ currentSlide, onSlideChange }) {
   };
 
   return (
-    <div className="bg-gradient-to-br from-slate-100 via-gray-50 to-slate-100 rounded-2xl p-4 shadow-xl relative overflow-hidden">
-      <div className="absolute top-2 left-2 opacity-20">
-        <Heart className="w-6 h-6 text-pink-400 fill-pink-400" />
+    <div className="bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 rounded-3xl p-6 shadow-2xl relative overflow-hidden border border-white/50">
+      {/* Animated gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-pink-100/20 via-transparent to-purple-100/20 animate-pulse"></div>
+      
+      {/* Decorative hearts with animation */}
+      <div className="absolute top-3 left-3 opacity-20 animate-bounce" style={{ animationDuration: '3s' }}>
+        <Heart className="w-7 h-7 text-pink-400 fill-pink-400" />
       </div>
-      <div className="absolute top-2 right-2 opacity-20">
-        <Heart className="w-5 h-5 text-purple-400 fill-purple-400" />
+      <div className="absolute top-3 right-3 opacity-20 animate-bounce" style={{ animationDuration: '3s', animationDelay: '0.5s' }}>
+        <Heart className="w-6 h-6 text-purple-400 fill-purple-400" />
       </div>
-      <div className="absolute bottom-20 left-4 opacity-15">
-        <Heart className="w-4 h-4 text-pink-300 fill-pink-300" />
+      <div className="absolute bottom-24 left-5 opacity-15 animate-pulse">
+        <Heart className="w-5 h-5 text-pink-300 fill-pink-300" />
       </div>
-      <div className="absolute bottom-20 right-4 opacity-15">
-        <Heart className="w-4 h-4 text-purple-300 fill-purple-300" />
+      <div className="absolute bottom-24 right-5 opacity-15 animate-pulse" style={{ animationDelay: '0.7s' }}>
+        <Heart className="w-5 h-5 text-purple-300 fill-purple-300" />
       </div>
 
-      <div className="text-center mb-3">
-        <h3 className="text-lg font-semibold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">
+      <div className="text-center mb-4 relative z-10">
+        <h3 className="text-xl font-bold bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent drop-shadow-sm">
           Cùng nhau viết nên câu chuyện
         </h3>
-        <p className="text-xs text-gray-500 mt-1">Những trang đẹp nhất</p>
+        <p className="text-sm text-gray-500 mt-1.5 font-medium">Những trang đẹp nhất ✨</p>
+        
+        {/* Decorative line */}
+        <div className="flex items-center justify-center gap-2 mt-2">
+          <div className="w-8 h-[2px] bg-gradient-to-r from-transparent to-pink-300 rounded-full"></div>
+          <Heart className="w-3 h-3 text-rose-400 fill-rose-400" />
+          <div className="w-8 h-[2px] bg-gradient-to-l from-transparent to-purple-300 rounded-full"></div>
+        </div>
       </div>
 
-      <div className="relative h-64 mb-4" style={{ perspective: '1500px' }}>
-        <div className="absolute inset-0 bg-gradient-to-b from-pink-50/30 to-purple-50/30 rounded-xl"></div>
+      <div className="relative h-72 mb-4" style={{ perspective: '1500px' }}>
+        {/* Enhanced background with animated gradients */}
+        <div className="absolute inset-0 bg-gradient-to-br from-pink-100/40 via-purple-100/40 to-blue-100/40 rounded-2xl"></div>
+        <div className="absolute inset-0 bg-gradient-radial from-white/20 via-transparent to-transparent rounded-2xl"></div>
+        
+        {/* Floating particles */}
+        <div className="absolute top-4 left-8 w-2 h-2 bg-pink-300 rounded-full animate-pulse opacity-40"></div>
+        <div className="absolute top-8 right-12 w-1.5 h-1.5 bg-purple-300 rounded-full animate-pulse opacity-40" style={{ animationDelay: '0.5s' }}></div>
+        <div className="absolute bottom-8 left-12 w-1.5 h-1.5 bg-blue-300 rounded-full animate-pulse opacity-40" style={{ animationDelay: '1s' }}></div>
         
         <div className="absolute inset-0 flex items-center justify-center">
           {memories.map((memory, index) => (
             <div
               key={memory.id}
-              className="absolute w-44 h-56 transition-all duration-700 ease-out cursor-pointer group"
+              className="absolute w-48 h-60 transition-all duration-700 ease-out cursor-pointer group"
               style={getSlideStyle(index)}
               onClick={() => onSlideChange(index)}
             >
-              <div className="w-full h-full rounded-2xl shadow-xl overflow-hidden relative border-4 border-white">
+              <div className="w-full h-full rounded-2xl shadow-2xl overflow-hidden relative border-[5px] border-white/90 backdrop-blur-sm">
                 <img 
                   src={memory.image} 
                   alt={`Memory ${memory.id}`}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                
+                {/* Shine effect on hover */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform -translate-x-full group-hover:translate-x-full" style={{ transition: 'transform 0.8s, opacity 0.3s' }}></div>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="flex gap-2 justify-between px-2">
+      <div className="flex gap-2 justify-center px-2 relative z-10">
         {memories.map((memory, index) => (
           <button
             key={memory.id}
             onClick={() => onSlideChange(index)}
-            className={`flex-1 max-w-[60px] h-14 rounded-xl transition-all duration-300 shadow-md overflow-hidden ${index === currentSlide ? 'border-4 border-pink-500' : 'opacity-60 hover:opacity-100'}`}
+            className={`w-16 h-16 rounded-2xl transition-all duration-300 shadow-lg overflow-hidden transform hover:scale-110 ${
+              index === currentSlide 
+                ? 'ring-4 ring-pink-500 ring-offset-2 scale-105' 
+                : 'opacity-50 hover:opacity-100 grayscale hover:grayscale-0'
+            }`}
           >
             <img 
               src={memory.image} 
