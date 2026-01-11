@@ -382,7 +382,7 @@ export default function App() {
                 <p className="text-xs text-gray-500 mt-1">Những trang đẹp nhất</p>
               </div>
 
-              <div className="relative h-80 mb-4" style={{ perspective: '1500px' }}>
+              <div className="relative h-64 mb-4" style={{ perspective: '1500px' }}>
                 {/* Gradient background */}
                 <div className="absolute inset-0 bg-gradient-to-b from-pink-50/30 to-purple-50/30 rounded-xl"></div>
                 
@@ -390,7 +390,7 @@ export default function App() {
                   {memories.map((memory, index) => (
                     <div
                       key={memory.id}
-                      className="absolute w-56 h-72 transition-all duration-700 ease-out cursor-pointer group"
+                      className="absolute w-44 h-56 transition-all duration-700 ease-out cursor-pointer group"
                       style={getSlideStyle(index)}
                       onClick={() => setCurrentSlide(index)}
                     >
@@ -437,8 +437,8 @@ export default function App() {
               {/* Overlay: Chỉ cần thêm đĩa than + tonearm */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="relative">
-                  {/* Vinyl record - Viền mỏng hơn để ảnh lớn hơn */}
-                  <div className="w-48 h-48 rounded-full shadow-2xl overflow-hidden border-2 border-gray-800 bg-black animate-spin" style={{ animationDuration: '10s' }}>
+                  {/* Vinyl record - TO RA */}
+                  <div className="w-64 h-64 rounded-full shadow-2xl overflow-hidden border-2 border-gray-800 bg-black animate-spin" style={{ animationDuration: '10s' }}>
                     <img 
                       src={musicImage}
                       alt="Vinyl Record"
@@ -446,11 +446,11 @@ export default function App() {
                     />
                   </div>
                   
-                  {/* Center label - Nhỏ hơn */}
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-gradient-to-br from-gray-700 to-gray-900 rounded-full shadow-inner border border-gray-600"></div>
+                  {/* Center label */}
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-11 h-11 bg-gradient-to-br from-gray-700 to-gray-900 rounded-full shadow-inner border border-gray-600"></div>
                   
-                  {/* Tonearm SVG */}
-                  <div className="absolute -top-4 -right-6 w-28 h-28">
+                  {/* Tonearm SVG - TO HƠN VÀ XA HƠN */}
+                  <div className="absolute -top-12 -right-24 w-52 h-52">
                     <img 
                       src={tayDiaSvg}
                       alt="Tonearm"
