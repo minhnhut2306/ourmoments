@@ -41,9 +41,8 @@ function HeaderSection({ timeDisplay, onTimeClick }) {
             <Sparkles className="absolute -top-4 -left-4 w-5 h-5 text-yellow-400 animate-pulse" />
             <Sparkles className="absolute -top-4 -right-4 w-4 h-4 text-pink-400 animate-pulse" style={{ animationDelay: '0.3s' }} />
             
-            <h1 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 bg-clip-text text-transparent drop-shadow-lg">
-              <span className="inline-block hover:scale-110 transition-transform">Forever</span>
-              <span className="inline-block hover:scale-110 transition-transform mx-3">Us</span>
+            <h1 className="text-5xl md:text-6xl font-black select-none bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 bg-clip-text text-transparent" style={{ WebkitFontSmoothing: 'antialiased', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              Forever Us
             </h1>
             
             {/* Bouncing heart on title */}
@@ -73,13 +72,9 @@ function HeaderSection({ timeDisplay, onTimeClick }) {
 
         {/* Enhanced Profiles and counter section */}
         <div className="flex items-center justify-center gap-8 mb-8">
-          {/* Left Avatar with glow */}
-          <div className="relative group">
-            <div className="absolute inset-0 bg-gradient-to-r from-pink-400 to-rose-400 rounded-full blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-500"></div>
-            <div className="relative transform hover:scale-110 transition-all duration-300 hover:rotate-6">
-              <ProfileAvatar name="Minh Nhựt" image={profileImages.nhut} />
-              <Sparkles className="absolute -top-2 -right-2 w-4 h-4 text-blue-400 animate-pulse opacity-0 group-hover:opacity-100 transition-opacity" />
-            </div>
+          {/* Left Avatar */}
+          <div className="relative">
+            <ProfileAvatar name="Minh Nhựt" image={profileImages.nhut} />
           </div>
 
           {/* Center Heart Counter - Enhanced */}
@@ -123,17 +118,13 @@ function HeaderSection({ timeDisplay, onTimeClick }) {
             <Star className="absolute bottom-6 -left-6 w-3 h-3 text-purple-400 fill-purple-400 animate-pulse" style={{ animationDelay: '2s' }} />
           </div>
 
-          {/* Right Avatar with glow */}
-          <div className="relative group">
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-500"></div>
-            <div className="relative transform hover:scale-110 transition-all duration-300 hover:-rotate-6">
-              <ProfileAvatar name="Minh Thư" image={profileImages.thu} />
-              <Sparkles className="absolute -top-2 -left-2 w-4 h-4 text-pink-400 animate-pulse opacity-0 group-hover:opacity-100 transition-opacity" />
-            </div>
+          {/* Right Avatar */}
+          <div className="relative">
+            <ProfileAvatar name="Minh Thư" image={profileImages.thu} />
           </div>
         </div>
 
-        {/* Enhanced Date Badge - Bỏ viền */}
+        {/* Enhanced Date Badge */}
         <div className="text-center space-y-3">
           <div className="inline-block relative group">
             {/* Glow effect behind badge */}

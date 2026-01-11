@@ -5,6 +5,7 @@ import { usePullToRefresh } from '../hooks/usePullToRefresh';
 import HeaderSection from '../components/HeaderSection';
 import MemoryCarousel from '../components/MemoryCarousel';
 import MusicPlayer from '../components/MusicPlayer';
+import PullRefreshAnimation from '../components/PullRefreshAnimation';
 import { memories } from '../data/constants';
 
 function MainView({ onShowGallery }) {
@@ -21,6 +22,14 @@ function MainView({ onShowGallery }) {
 
   return (
     <div className="fixed inset-0 overflow-hidden bg-gradient-to-br from-pink-300 via-purple-300 to-blue-300" style={{ touchAction: 'pan-y' }}>
+      
+      {/* Pull to Refresh Animation */}
+      <PullRefreshAnimation 
+        pullDistance={pullDistance}
+        isRefreshing={isRefreshing}
+        threshold={threshold}
+      />
+
       <div 
         data-scroll-container
         className="w-full h-full overflow-y-auto overflow-x-hidden"
@@ -30,43 +39,6 @@ function MainView({ onShowGallery }) {
           transition: isRefreshing || pullDistance === 0 ? 'transform 0.3s ease-out' : 'none'
         }}
       >
-        {/* Simple Beautiful Pull Indicator */}
-        <div 
-          className="absolute top-0 left-0 right-0 flex items-center justify-center pointer-events-none"
-          style={{
-            height: '100px',
-            marginTop: '-100px',
-            opacity: Math.min(pullDistance / threshold, 1)
-          }}
-        >
-          <div className="flex flex-col items-center gap-2">
-            {/* Rotating Heart Spinner */}
-            <div 
-              className={`${isRefreshing ? 'animate-spin' : ''}`}
-              style={{
-                transform: isRefreshing ? 'none' : `rotate(${(pullDistance / threshold) * 360}deg)`,
-                transition: isRefreshing ? 'none' : 'transform 0.1s ease-out'
-              }}
-            >
-              <svg className="w-12 h-12 drop-shadow-2xl" viewBox="0 0 20 20">
-                <defs>
-                  <linearGradient id="heartGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" style={{ stopColor: '#ec4899' }} />
-                    <stop offset="50%" style={{ stopColor: '#a855f7' }} />
-                    <stop offset="100%" style={{ stopColor: '#3b82f6' }} />
-                  </linearGradient>
-                </defs>
-                <path fill="url(#heartGrad)" fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
-              </svg>
-            </div>
-            
-            {/* Text */}
-            <p className="text-sm font-bold text-white drop-shadow-lg">
-              {isRefreshing ? 'Đang tải...' : pullDistance >= threshold ? 'Thả ra' : 'Kéo xuống'}
-            </p>
-          </div>
-        </div>
-
         <div className="min-h-full bg-gradient-to-b from-white via-pink-50 to-purple-50">
           
           <HeaderSection 

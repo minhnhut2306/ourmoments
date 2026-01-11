@@ -2,46 +2,33 @@ import { useEffect } from 'react';
 
 function usePreventSwipe() {
   useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    document.body.style.position = 'fixed';
-    document.body.style.width = '100%';
-    document.body.style.height = '100%';
+    // CHỈ chặn swipe NGANG (browser back/forward)
+    // CHO PHÉP swipe DỌC (scroll & pull-to-refresh)
     
-    const preventSwipe = (e) => {
-      if (e.touches && e.touches.length > 0) {
-        const touch = e.touches[0];
-        const startX = touch.clientX;
-        
-        const handleMove = (moveEvent) => {
-          if (moveEvent.touches && moveEvent.touches.length > 0) {
-            const moveTouch = moveEvent.touches[0];
-            const deltaX = Math.abs(moveTouch.clientX - startX);
-            const deltaY = Math.abs(moveTouch.clientY - touch.clientY);
-            
-            if (deltaX > deltaY) {
-              moveEvent.preventDefault();
-            }
-          }
-        };
-        
-        document.addEventListener('touchmove', handleMove, { passive: false });
-        
-        const cleanup = () => {
-          document.removeEventListener('touchmove', handleMove);
-        };
-        
-        document.addEventListener('touchend', cleanup, { once: true });
+    let startX = 0;
+    let startY = 0;
+    
+    const handleTouchStart = (e) => {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    };
+    
+    const handleTouchMove = (e) => {
+      const deltaX = Math.abs(e.touches[0].clientX - startX);
+      const deltaY = Math.abs(e.touches[0].clientY - startY);
+      
+      // CHỈ preventDefault nếu swipe NGANG nhiều hơn DỌC
+      if (deltaX > deltaY && deltaX > 50) {
+        e.preventDefault();
       }
     };
     
-    document.addEventListener('touchstart', preventSwipe, { passive: false });
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
     
     return () => {
-      document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.width = '';
-      document.body.style.height = '';
-      document.removeEventListener('touchstart', preventSwipe);
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchmove', handleTouchMove);
     };
   }, []);
 }

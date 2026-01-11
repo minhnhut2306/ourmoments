@@ -5,19 +5,15 @@ function usePullToRefresh() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const startYRef = useRef(0);
   const canPullRef = useRef(false);
-  const pullDistanceRef = useRef(0);
 
-  const threshold = 80;
-
-  useEffect(() => {
-    pullDistanceRef.current = pullDistance;
-  }, [pullDistance]);
+  const threshold = 100;
 
   useEffect(() => {
     const scrollContainer = document.querySelector('[data-scroll-container]');
     if (!scrollContainer) return;
 
     const handleTouchStart = (e) => {
+      // CHỈ cho phép pull khi ở TOP của trang
       if (scrollContainer.scrollTop === 0) {
         canPullRef.current = true;
         startYRef.current = e.touches[0].clientY;
@@ -30,10 +26,13 @@ function usePullToRefresh() {
       const currentY = e.touches[0].clientY;
       const distance = currentY - startYRef.current;
 
+      // CHỈ xử lý khi KÉO XUỐNG (distance > 0)
       if (distance > 0) {
-        const dampedDistance = Math.min(distance * 0.5, 120);
-        setPullDistance(dampedDistance);
+        // Damping effect: càng kéo xa thì càng chậm
+        const dampedDistance = Math.pow(distance, 0.85);
+        setPullDistance(Math.min(dampedDistance, 200));
         
+        // Prevent scroll xuống khi đang pull
         if (distance > 10) {
           e.preventDefault();
         }
@@ -45,13 +44,17 @@ function usePullToRefresh() {
       
       canPullRef.current = false;
 
-      if (pullDistanceRef.current >= threshold) {
+      // Nếu kéo đủ xa thì reload
+      if (pullDistance >= threshold) {
         setIsRefreshing(true);
-        setPullDistance(threshold);
         
-        await new Promise(resolve => setTimeout(resolve, 800));
+        // Giữ animation 2s để người dùng thấy rõ
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Reload trang
         window.location.reload();
       } else {
+        // Không đủ xa thì reset về 0
         setPullDistance(0);
       }
     };
@@ -65,7 +68,7 @@ function usePullToRefresh() {
       scrollContainer.removeEventListener('touchmove', handleTouchMove);
       scrollContainer.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [isRefreshing]);
+  }, [isRefreshing, pullDistance]);
 
   return {
     pullDistance,
