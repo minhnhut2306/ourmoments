@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Heart, Grid, ArrowLeft, Calendar, Download, X } from 'lucide-react';
+// Import SVG files from assets folder
+import nenNhacSvg from './assets/nen-nhac.svg';
+import tayDiaSvg from './assets/tay-dia.svg';
 
 export default function App() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -426,16 +429,16 @@ export default function App() {
             <div className="relative rounded-2xl overflow-hidden shadow-lg">
               {/* Background - NỀN NHẠC (có sẵn power + volume) */}
               <img 
-                src="YOUR_NEN_NHAC_LINK_HERE"
+                src={nenNhacSvg}
                 alt="Music Player"
                 className="w-full object-cover"
               />
               
-              {/* Overlay: Chỉ cần thêm đĩa than + nút pause + tonearm */}
+              {/* Overlay: Chỉ cần thêm đĩa than + tonearm */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="relative">
-                  {/* Vinyl record */}
-                  <div className="w-40 h-40 rounded-full shadow-2xl overflow-hidden border-4 border-gray-800 bg-black">
+                  {/* Vinyl record - Viền mỏng hơn để ảnh lớn hơn */}
+                  <div className="w-48 h-48 rounded-full shadow-2xl overflow-hidden border-2 border-gray-800 bg-black animate-spin" style={{ animationDuration: '10s' }}>
                     <img 
                       src={musicImage}
                       alt="Vinyl Record"
@@ -443,21 +446,13 @@ export default function App() {
                     />
                   </div>
                   
-                  {/* Center label */}
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-gradient-to-br from-gray-700 to-gray-900 rounded-full shadow-inner border-2 border-gray-600"></div>
-                  
-                  {/* Pause button */}
-                  <button className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-gray-300 bg-opacity-95 rounded-full shadow-lg flex items-center justify-center hover:bg-opacity-100 transition border-2 border-gray-400">
-                    <div className="flex gap-1">
-                      <div className="w-1.5 h-5 bg-gray-800 rounded-sm"></div>
-                      <div className="w-1.5 h-5 bg-gray-800 rounded-sm"></div>
-                    </div>
-                  </button>
+                  {/* Center label - Nhỏ hơn */}
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-gradient-to-br from-gray-700 to-gray-900 rounded-full shadow-inner border border-gray-600"></div>
                   
                   {/* Tonearm SVG */}
                   <div className="absolute -top-4 -right-6 w-28 h-28">
                     <img 
-                      src="YOUR_TAY_DIA_SVG_LINK_HERE"
+                      src={tayDiaSvg}
                       alt="Tonearm"
                       className="w-full h-full object-contain drop-shadow-xl"
                     />
