@@ -28,4 +28,4 @@ function VideoModal({ video, onClose }) {
     </div>
   );
 }
-import React from 'react';
+export default VideoModal;
