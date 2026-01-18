@@ -35,4 +35,5 @@ function ImageModal({ image, onClose, onDownload, downloading }) {
   );
 }
 
+
 export default ImageModal;
