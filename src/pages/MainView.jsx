@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Grid } from 'lucide-react';
 import { useTimeCounter } from '../hooks/useTimeCounter';
 import { usePullToRefresh } from '../hooks/usePullToRefresh';
@@ -6,24 +6,15 @@ import HeaderSection from '../components/MainView/HeaderSection';
 import MemoryCarousel from '../components/MainView/MemoryCarousel';
 import MusicPlayer from '../components/MainView/MusicPlayer';
 import PullRefreshAnimation from '../components/MainView/PullRefreshAnimation';
-import { memories } from '../data/constants';
 
 function MainView({ onShowGallery }) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const { timeDisplay, handleTimeClick } = useTimeCounter(1083);
   const { pullDistance, isRefreshing, threshold } = usePullToRefresh();
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % memories.length);
-    }, 10000);
-    return () => clearInterval(interval);
-  }, []);
-
   return (
     <div className="fixed inset-0 overflow-hidden bg-gradient-to-br from-pink-300 via-purple-300 to-blue-300" style={{ touchAction: 'pan-y' }}>
       
-      {/* Pull to Refresh Animation */}
       <PullRefreshAnimation 
         pullDistance={pullDistance}
         isRefreshing={isRefreshing}

@@ -1,8 +1,38 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Heart } from 'lucide-react';
-import { memories } from '../../data/constants';
+import { getAllFavorites } from '../../api/favoritesApi';
 
 function MemoryCarousel({ currentSlide, onSlideChange }) {
+  const [memories, setMemories] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadFavorites = async () => {
+      try {
+        setLoading(true);
+        const response = await getAllFavorites(1, 100);
+        
+        if (response.status === 'success') {
+          const favoritesList = response.data.favorites
+            .filter(fav => fav.mediaId && fav.mediaId.type === 'image')
+            .map((fav) => ({
+              id: fav._id,
+              image: fav.url || fav.mediaId.url,
+              mediaId: fav.mediaId._id
+            }));
+          
+          setMemories(favoritesList);
+        }
+      } catch (error) {
+        console.error('Load favorites error:', error);
+        setMemories([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadFavorites();
+  }, []);
 
   const getSlideStyle = (index) => {
     const diff = index - currentSlide;
@@ -40,12 +70,33 @@ function MemoryCarousel({ currentSlide, onSlideChange }) {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 rounded-3xl p-6 shadow-2xl relative overflow-hidden border border-white/50">
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto"></div>
+          <p className="text-gray-500 mt-4">Đang tải...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (memories.length === 0) {
+    return (
+      <div className="bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 rounded-3xl p-6 shadow-2xl relative overflow-hidden border border-white/50">
+        <div className="text-center py-12">
+          <Heart className="w-16 h-16 mx-auto text-gray-300 mb-3" />
+          <p className="text-gray-500 font-semibold">Chưa có ảnh yêu thích</p>
+          <p className="text-sm text-gray-400 mt-1">Hãy thêm ảnh vào yêu thích nhé!</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 rounded-3xl p-6 shadow-2xl relative overflow-hidden border border-white/50">
-      {/* Animated gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-pink-100/20 via-transparent to-purple-100/20 animate-pulse"></div>
       
-      {/* Decorative hearts with animation */}
       <div className="absolute top-3 left-3 opacity-20 animate-bounce" style={{ animationDuration: '3s' }}>
         <Heart className="w-7 h-7 text-pink-400 fill-pink-400" />
       </div>
@@ -65,7 +116,6 @@ function MemoryCarousel({ currentSlide, onSlideChange }) {
         </h3>
         <p className="text-sm text-gray-500 mt-1.5 font-medium">Những trang đẹp nhất ✨</p>
         
-        {/* Decorative line */}
         <div className="flex items-center justify-center gap-2 mt-2">
           <div className="w-8 h-[2px] bg-gradient-to-r from-transparent to-pink-300 rounded-full"></div>
           <Heart className="w-3 h-3 text-rose-400 fill-rose-400" />
@@ -74,11 +124,9 @@ function MemoryCarousel({ currentSlide, onSlideChange }) {
       </div>
 
       <div className="relative h-64 mb-4" style={{ perspective: '1500px' }}>
-        {/* Enhanced background with animated gradients */}
         <div className="absolute inset-0 bg-gradient-to-br from-pink-100/40 via-purple-100/40 to-blue-100/40 rounded-2xl"></div>
         <div className="absolute inset-0 bg-gradient-radial from-white/20 via-transparent to-transparent rounded-2xl"></div>
         
-        {/* Floating particles */}
         <div className="absolute top-4 left-8 w-2 h-2 bg-pink-300 rounded-full animate-pulse opacity-40"></div>
         <div className="absolute top-8 right-12 w-1.5 h-1.5 bg-purple-300 rounded-full animate-pulse opacity-40" style={{ animationDelay: '0.5s' }}></div>
         <div className="absolute bottom-8 left-12 w-1.5 h-1.5 bg-blue-300 rounded-full animate-pulse opacity-40" style={{ animationDelay: '1s' }}></div>
@@ -99,7 +147,6 @@ function MemoryCarousel({ currentSlide, onSlideChange }) {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 
-                {/* Shine effect on hover */}
                 <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform -translate-x-full group-hover:translate-x-full" style={{ transition: 'transform 0.8s, opacity 0.3s' }}></div>
               </div>
             </div>
