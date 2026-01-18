@@ -1,8 +1,8 @@
 import React, { useRef, useState } from 'react';
-import nenNhacSvg from '../assets/nen-nhac.svg';
-import tayDiaSvg from '../assets/tay-dia.svg';
-import musicImage from '../assets/dianhac.webp';
-import musicFile from '../assets/nhac.mp3';
+import nenNhacSvg from './../../assets/nen-nhac.svg';
+import tayDiaSvg from './../../assets/tay-dia.svg';
+import musicImage from './../../assets/dianhac.webp';
+import musicFile from './../../assets/nhac.mp3';
 
 function MusicPlayer() {
     const audioRef = useRef(null);

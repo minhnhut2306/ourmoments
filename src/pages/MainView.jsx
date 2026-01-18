@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 import { Grid } from 'lucide-react';
 import { useTimeCounter } from '../hooks/useTimeCounter';
 import { usePullToRefresh } from '../hooks/usePullToRefresh';
-import HeaderSection from '../components/HeaderSection';
-import MemoryCarousel from '../components/MemoryCarousel';
-import MusicPlayer from '../components/MusicPlayer';
-import PullRefreshAnimation from '../components/PullRefreshAnimation';
+import HeaderSection from '../components/MainView/HeaderSection';
+import MemoryCarousel from '../components/MainView/MemoryCarousel';
+import MusicPlayer from '../components/MainView/MusicPlayer';
+import PullRefreshAnimation from '../components/MainView/PullRefreshAnimation';
 import { memories } from '../data/constants';
 
 function MainView({ onShowGallery }) {

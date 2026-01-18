@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import MainView from './pages/MainView';
 import Gallery from './pages/Gallery';
-import ImageModal from './components/ImageModal';
+import ImageModal from './components/Gallery/ImageModal';
 import { usePreventSwipe } from './hooks/usePreventSwipe';
 import { downloadImage } from './utils/downloadHelper';
 

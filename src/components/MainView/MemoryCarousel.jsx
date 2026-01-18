@@ -1,6 +1,6 @@
 import React from 'react';
 import { Heart } from 'lucide-react';
-import { memories } from '../data/constants';
+import { memories } from '../../data/constants';
 
 function MemoryCarousel({ currentSlide, onSlideChange }) {
 

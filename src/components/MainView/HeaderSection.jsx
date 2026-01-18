@@ -1,8 +1,8 @@
 import React from 'react';
 import { Heart, Sparkles, Star } from 'lucide-react';
-import { profileImages } from '../data/constants';
+import { profileImages } from '../../data/constants';
 import ProfileAvatar from './ProfileAvatar';
-import traiTimSvg from '../assets/trai-tim.svg';
+import traiTimSvg from './../../assets/trai-tim.svg';
 
 function HeaderSection({ timeDisplay, onTimeClick }) {
   return (
