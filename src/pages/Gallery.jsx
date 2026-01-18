@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { useGallery } from '../hooks/useGallery';
+import { useGalleryAPI } from '../hooks/useGalleryAPI';
+import { useFavorites } from '../hooks/useFavorites';
 import GalleryHeader from '../components/Gallery/GalleryHeader';
 import GalleryGrid from '../components/Gallery/GalleryGrid';
 import UploadModal from '../components/Gallery/UploadModal';
 import ImageModal from '../components/Gallery/ImageModal';
 import VideoModal from '../components/Gallery/VideoModal';
+import UploadingAnimation from '../components/Gallery/UploadingAnimation';
 import { downloadImage } from '../utils/downloadHelper';
 
 function Gallery({ onBack }) {
@@ -13,20 +15,42 @@ function Gallery({ onBack }) {
   const [downloading, setDownloading] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [filterType, setFilterType] = useState('image');
+  const [localToast, setLocalToast] = useState({ show: false, message: '', type: 'success' });
 
+  // Gallery Data Hook
   const {
-    favorites,
-    toast,
-    toggleFavorite,
-    isFavoriteItem,
+    loading,
+    uploading,
+    uploadProgress,
+    toast: uploadToast,
     handleUploadFiles,
     getFilteredData,
-    getTotalCounts,
+    getTotalCounts
+  } = useGalleryAPI();
+
+  // Favorites Hook
+  const {
+    favorites,
+    isFavoriteItem,
+    toggleFavorite: toggleFav,
     MAX_FAVORITES
-  } = useGallery();
+  } = useFavorites();
 
   const displayData = getFilteredData(filterType);
   const counts = getTotalCounts();
+
+  // Handle toggle favorite với toast
+  const handleToggleFavorite = async (item) => {
+    const result = await toggleFav(item);
+    if (result) {
+      setLocalToast({ 
+        show: true, 
+        message: result.message, 
+        type: result.type || 'success' 
+      });
+      setTimeout(() => setLocalToast({ show: false, message: '', type: 'success' }), 3000);
+    }
+  };
 
   const handleDownload = async (url, filename) => {
     setDownloading(true);
@@ -38,10 +62,8 @@ function Gallery({ onBack }) {
   };
 
   const onUpload = async (files) => {
-    const success = await handleUploadFiles(files);
-    if (success) {
-      setShowUploadModal(false);
-    }
+    setShowUploadModal(false); // ✅ Đóng modal ngay lập tức
+    await handleUploadFiles(files); // Upload ở background
   };
 
   return (
@@ -59,16 +81,44 @@ function Gallery({ onBack }) {
             counts={counts}
           />
 
-          {/* Toast Notification */}
-          {toast.show && (
+          {/* Loading Overlay */}
+          {loading && (
+            <div className="fixed inset-0 bg-black bg-opacity-30 z-50 flex items-center justify-center">
+              <div className="bg-white rounded-xl p-6 shadow-2xl">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-3"></div>
+                <p className="text-gray-700 font-semibold">Đang tải...</p>
+              </div>
+            </div>
+          )}
+
+          {/* Upload Animation */}
+          <UploadingAnimation uploading={uploading} progress={uploadProgress} />
+
+          {/* Toast Notification - Upload */}
+          {uploadToast.show && (
             <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50">
               <div className={`px-4 py-2 rounded-lg shadow-lg text-white text-sm font-medium ${
-                toast.type === 'success' ? 'bg-green-500' :
-                toast.type === 'warning' ? 'bg-orange-500' :
-                toast.type === 'error' ? 'bg-red-500' :
+                uploadToast.type === 'success' ? 'bg-green-500' :
+                uploadToast.type === 'warning' ? 'bg-orange-500' :
+                uploadToast.type === 'error' ? 'bg-red-500' :
                 'bg-blue-500'
               }`}>
-                {toast.message}
+                {uploadToast.message}
+              </div>
+            </div>
+          )}
+
+          {/* Toast Notification - Favorites */}
+          {localToast.show && (
+            <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50">
+              <div className={`px-4 py-2 rounded-lg shadow-lg text-white text-sm font-medium ${
+                localToast.type === 'success' ? 'bg-green-500' :
+                localToast.type === 'warning' ? 'bg-orange-500' :
+                localToast.type === 'error' ? 'bg-red-500' :
+                localToast.type === 'info' ? 'bg-blue-500' :
+                'bg-gray-500'
+              }`}>
+                {localToast.message}
               </div>
             </div>
           )}
@@ -83,7 +133,7 @@ function Gallery({ onBack }) {
             displayData={displayData}
             filterType={filterType}
             isFavoriteItem={isFavoriteItem}
-            onToggleFavorite={toggleFavorite}
+            onToggleFavorite={handleToggleFavorite}
             onImageClick={setSelectedImage}
             onVideoClick={setSelectedVideo}
           />

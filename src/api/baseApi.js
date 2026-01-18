@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "https://edutime-server.vercel.app/api/";
+const API_URL = "http://localhost:5000/api";
 
 export const api = axios.create({
   baseURL: API_URL,
@@ -10,32 +10,9 @@ export const api = axios.create({
   timeout: 30000,
 });
 
-let sessionExpiredCallback = null;
-let sessionExpiredTriggered = false;
-
-export const setSessionExpiredCallback = (callback) => {
-  sessionExpiredCallback = callback;
-  sessionExpiredTriggered = false;
-  console.log("✅ Session expired callback registered");
-};
-
-// ✅ Response Interceptor - Nhận token mới từ server
+// ✅ Response Interceptor - Xử lý lỗi
 api.interceptors.response.use(
   (response) => {
-    // ✅ KIỂM TRA CÓ TOKEN MỚI KHÔNG
-    const newToken = response.headers['x-new-token'];
-    
-    if (newToken) {
-      console.log('🔄 Nhận token mới từ server, đang cập nhật localStorage...');
-      console.log('Token cũ:', localStorage.getItem('token')?.substring(0, 10) + '...');
-      console.log('Token mới:', newToken.substring(0, 10) + '...');
-      
-      // ✅ LƯU TOKEN MỚI VÀO LOCALSTORAGE
-      localStorage.setItem('token', newToken);
-      
-      console.log('✅ Đã cập nhật token mới thành công!');
-    }
-    
     return response;
   },
   (error) => {
@@ -44,49 +21,13 @@ api.interceptors.response.use(
 
       console.error(`🔥 API Error [${status}]:`, data?.msg || error.message);
 
-      // ✅ TỰ ĐỘNG ĐĂNG XUẤT KHI GẶP LỖI 401
-      if (status === 401) {
-        const errorMessage = data?.msg || "Token không hợp lệ";
-
-        console.warn("🔥 AUTO LOGOUT - Token không hợp lệ");
-
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-
-        alert(
-          `Phiên đăng nhập đã hết hạn!\n\n${errorMessage}\n\nVui lòng đăng nhập lại.`
-        );
-
-        window.location.reload();
-
-        return Promise.reject(new Error("Session expired"));
+      // Xử lý các loại lỗi khác nếu cần
+      if (status === 404) {
+        console.warn("⚠️ Resource not found");
       }
 
-      // ✅ XỬ LÝ LỖI SESSION EXPIRED (500)
       if (status === 500) {
-        const errorMessage = data?.msg || "";
-
-        if (
-          errorMessage.includes("Phiên đăng nhập đã hết hạn") &&
-          !sessionExpiredTriggered
-        ) {
-          sessionExpiredTriggered = true;
-
-          console.warn("🔥 TRIGGER SESSION EXPIRED MODAL");
-
-          localStorage.removeItem("token");
-          localStorage.removeItem("user");
-
-          if (sessionExpiredCallback) {
-            sessionExpiredCallback(errorMessage);
-          } else {
-            console.error("⚠️ sessionExpiredCallback not set!");
-            alert(`${errorMessage}`);
-            window.location.reload();
-          }
-
-          return Promise.reject(new Error("Session expired"));
-        }
+        console.error("🔥 Server error");
       }
     } else {
       console.error("Network Error:", error.message);
@@ -99,8 +40,7 @@ api.interceptors.response.use(
 export const apiRequest = async (
   endpoint,
   method = "GET",
-  body = null,
-  token = null
+  body = null
 ) => {
   try {
     const config = {
@@ -110,11 +50,6 @@ export const apiRequest = async (
         "Content-Type": "application/json",
       },
     };
-
-    const authToken = token || localStorage.getItem("token");
-    if (authToken) {
-      config.headers["Authorization"] = `Bearer ${authToken}`;
-    }
 
     if (body && Object.keys(body).length > 0) {
       config.data = body;
