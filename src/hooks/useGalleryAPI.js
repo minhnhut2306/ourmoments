@@ -57,7 +57,7 @@ function useGalleryAPI() {
   // ==================== UPLOAD FILES ====================
   
   /**
-   * Upload multiple files
+   * Upload multiple files với progress tracking
    */
   const handleUploadFiles = async (files) => {
     const validFiles = [];
@@ -95,14 +95,26 @@ function useGalleryAPI() {
       setUploadProgress(0);
       
       const totalFiles = validFiles.length;
-      let completedFiles = 0;
+      const fileProgress = {}; // Track progress của từng file
+      
+      // Khởi tạo progress cho mỗi file
+      validFiles.forEach((_, index) => {
+        fileProgress[index] = 0;
+      });
 
-      // Upload từng file và cập nhật progress
-      const uploadPromises = validFiles.map(async (file) => {
-        const result = await uploadMedia(file);
-        completedFiles++;
-        const progress = Math.round((completedFiles / totalFiles) * 100);
-        setUploadProgress(progress);
+      // Hàm tính tổng progress
+      const updateTotalProgress = () => {
+        const total = Object.values(fileProgress).reduce((sum, val) => sum + val, 0);
+        const avgProgress = Math.round(total / totalFiles);
+        setUploadProgress(avgProgress);
+      };
+
+      // Upload từng file với progress tracking
+      const uploadPromises = validFiles.map(async (file, index) => {
+        const result = await uploadMedia(file, (progress) => {
+          fileProgress[index] = progress;
+          updateTotalProgress();
+        });
         return result;
       });
 
@@ -111,6 +123,8 @@ function useGalleryAPI() {
       const successCount = results.filter(r => r.status === 'success').length;
       
       if (successCount > 0) {
+        setUploadProgress(100); // Đảm bảo hiển thị 100% cuối cùng
+        await new Promise(resolve => setTimeout(resolve, 500)); // Delay 0.5s để user thấy 100%
         showToast(`Đã tải lên ${successCount}/${validFiles.length} file!`, 'success');
         await loadGalleryData(); // Reload data
         return true;

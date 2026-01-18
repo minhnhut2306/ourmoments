@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { useGalleryAPI } from '../hooks/useGalleryAPI';
 import { useFavorites } from '../hooks/useFavorites';
+import { usePrefetch } from '../hooks/usePrefetch';
 import GalleryHeader from '../components/Gallery/GalleryHeader';
 import GalleryGrid from '../components/Gallery/GalleryGrid';
 import UploadModal from '../components/Gallery/UploadModal';
 import ImageModal from '../components/Gallery/ImageModal';
 import VideoModal from '../components/Gallery/VideoModal';
 import UploadingAnimation from '../components/Gallery/UploadingAnimation';
+import LoadingOverlay from '../components/Gallery/LoadingOverlay';
 import { downloadImage } from '../utils/downloadHelper';
 
 function Gallery({ onBack }) {
@@ -16,6 +18,9 @@ function Gallery({ onBack }) {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [filterType, setFilterType] = useState('image');
   const [localToast, setLocalToast] = useState({ show: false, message: '', type: 'success' });
+
+  // ✅ Warm-up server để tránh cold start
+  usePrefetch();
 
   // Gallery Data Hook
   const {
@@ -81,15 +86,8 @@ function Gallery({ onBack }) {
             counts={counts}
           />
 
-          {/* Loading Overlay */}
-          {loading && (
-            <div className="fixed inset-0 bg-black bg-opacity-30 z-50 flex items-center justify-center">
-              <div className="bg-white rounded-xl p-6 shadow-2xl">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-3"></div>
-                <p className="text-gray-700 font-semibold">Đang tải...</p>
-              </div>
-            </div>
-          )}
+          {/* Loading Overlay với cold start warning */}
+          <LoadingOverlay loading={loading} />
 
           {/* Upload Animation */}
           <UploadingAnimation uploading={uploading} progress={uploadProgress} />
