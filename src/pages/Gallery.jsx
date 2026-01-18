@@ -118,22 +118,96 @@ function Gallery() {
     setDownloading(false);
   };
 
-  const handleUploadFiles = (files) => {
+  const handleUploadFiles = async (files) => {
+    const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
+    const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100MB
     const today = new Date();
     const dateStr = `${String(today.getDate()).padStart(2, '0')}-${String(today.getMonth() + 1).padStart(2, '0')}-${today.getFullYear()}`;
     
-    const newItems = Array.from(files).map((file, index) => {
+    const validFiles = [];
+    const rejectedFiles = [];
+    
+    Array.from(files).forEach((file) => {
+      const isVideo = file.type.startsWith('video/');
+      const isImage = file.type.startsWith('image/');
+      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
+      
+      if (isImage && file.size > MAX_IMAGE_SIZE) {
+        rejectedFiles.push({ name: file.name, size: fileSizeMB, type: 'image' });
+      } else if (isVideo && file.size > MAX_VIDEO_SIZE) {
+        rejectedFiles.push({ name: file.name, size: fileSizeMB, type: 'video' });
+      } else {
+        validFiles.push(file);
+      }
+    });
+    
+    if (rejectedFiles.length > 0) {
+      const msg = rejectedFiles.map(f => {
+        const limit = f.type === 'image' ? '10MB' : '100MB';
+        return `${f.name} (${f.size}MB > ${limit})`;
+      }).join(', ');
+      showToast(`File quá lớn: ${msg}`, 'error');
+    }
+    
+    if (validFiles.length === 0) {
+      setShowUploadModal(false);
+      return;
+    }
+    
+    // Generate thumbnails for videos
+    const generateVideoThumbnail = (file) => {
+      return new Promise((resolve) => {
+        const video = document.createElement('video');
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        video.preload = 'metadata';
+        video.muted = true;
+        video.playsInline = true;
+        
+        video.onloadeddata = () => {
+          video.currentTime = 1; // Seek to 1 second
+        };
+        
+        video.onseeked = () => {
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          
+          canvas.toBlob((blob) => {
+            const thumbnailUrl = URL.createObjectURL(blob);
+            resolve(thumbnailUrl);
+          }, 'image/jpeg', 0.8);
+        };
+        
+        video.onerror = () => {
+          resolve(null); // Fallback if error
+        };
+        
+        video.src = URL.createObjectURL(file);
+      });
+    };
+    
+    const newItemsPromises = validFiles.map(async (file, index) => {
       const url = URL.createObjectURL(file);
       const type = file.type.startsWith('video/') ? 'video' : 'image';
+      
+      let thumbnail = null;
+      if (type === 'video') {
+        thumbnail = await generateVideoThumbnail(file);
+      }
       
       return {
         id: Date.now() + index,
         type: type,
         url: url,
-        thumbnail: type === 'video' ? url : undefined,
-        name: file.name
+        thumbnail: thumbnail || url,
+        name: file.name,
+        size: file.size
       };
     });
+    
+    const newItems = await Promise.all(newItemsPromises);
 
     const newGalleryData = [...galleryData];
     const todayGroup = newGalleryData.find(g => g.date === dateStr);
@@ -238,18 +312,14 @@ function Gallery() {
 
           {/* Toast Notification */}
           {toast.show && (
-            <div className="fixed top-32 left-1/2 transform -translate-x-1/2 z-50 animate-bounce">
-              <div className={`px-6 py-3 rounded-full shadow-2xl flex items-center gap-2 ${
-                toast.type === 'success' ? 'bg-gradient-to-r from-green-500 to-emerald-500' :
-                toast.type === 'warning' ? 'bg-gradient-to-r from-amber-500 to-orange-500' :
-                toast.type === 'error' ? 'bg-gradient-to-r from-red-500 to-rose-500' :
-                'bg-gradient-to-r from-blue-500 to-indigo-500'
-              } text-white`}>
-                {toast.type === 'success' && <Heart className="w-5 h-5 fill-white" />}
-                {toast.type === 'warning' && <Star className="w-5 h-5 fill-white" />}
-                {toast.type === 'error' && <X className="w-5 h-5" />}
-                {toast.type === 'info' && <Heart className="w-5 h-5" />}
-                <span className="font-semibold">{toast.message}</span>
+            <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50">
+              <div className={`px-4 py-2 rounded-lg shadow-lg text-white text-sm font-medium ${
+                toast.type === 'success' ? 'bg-green-500' :
+                toast.type === 'warning' ? 'bg-orange-500' :
+                toast.type === 'error' ? 'bg-red-500' :
+                'bg-blue-500'
+              }`}>
+                {toast.message}
               </div>
             </div>
           )}
@@ -288,7 +358,8 @@ function Gallery() {
                       <Video className="w-12 h-12 text-purple-400" />
                     </div>
                     <p className="text-gray-700 font-semibold mb-1">Chọn ảnh hoặc video</p>
-                    <p className="text-sm text-gray-500">Có thể chọn nhiều file cùng lúc</p>
+                    <p className="text-sm text-gray-500 mb-3">Có thể chọn nhiều file cùng lúc</p>
+                    <p className="text-xs text-gray-400">Ảnh: tối đa 10MB • Video: tối đa 100MB</p>
                   </div>
                 </label>
 
@@ -324,7 +395,7 @@ function Gallery() {
                     {dateGroup.items.map((item) => (
                       <div
                         key={item.id}
-                        className="relative aspect-square rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow group cursor-pointer"
+                        className="relative aspect-square rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all group cursor-pointer"
                         onClick={() => {
                           if (item.type === 'video') {
                             setSelectedVideo(item);
@@ -335,17 +406,24 @@ function Gallery() {
                       >
                         {item.type === 'video' ? (
                           <>
-                            <img
-                              src={item.thumbnail || 'https://via.placeholder.com/300x300?text=Video'}
-                              alt={item.name}
-                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                            />
-                            <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
-                              <div className="bg-white bg-opacity-90 rounded-full p-3 group-hover:scale-110 transition-transform">
-                                <Play className="w-8 h-8 text-purple-600 fill-purple-600" />
+                            {/* Hiển thị thumbnail image thay vì video tag */}
+                            {item.thumbnail ? (
+                              <img
+                                src={item.thumbnail}
+                                alt={item.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="absolute inset-0 bg-gradient-to-br from-purple-400 to-pink-400" />
+                            )}
+                            
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-center justify-center">
+                              <div className="bg-white rounded-full p-3 group-hover:scale-110 transition-transform shadow-lg">
+                                <Play className="w-6 h-6 text-purple-600 fill-purple-600" />
                               </div>
                             </div>
-                            <div className="absolute top-2 left-2 bg-purple-600 text-white px-2 py-1 rounded text-xs font-semibold">
+                            
+                            <div className="absolute top-2 left-2 bg-purple-600 text-white px-2 py-1 rounded-md text-xs font-semibold">
                               VIDEO
                             </div>
                           </>
