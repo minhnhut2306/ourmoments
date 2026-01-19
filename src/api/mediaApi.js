@@ -1,8 +1,5 @@
 import { api } from './baseApi';
 
-// ========================================
-// CLOUDINARY CONFIGURATION
-// ========================================
 const CLOUDINARY_IMAGE = {
   cloud_name: 'dcb0icdta',
   upload_preset: 'ourmoments_unsigned'
@@ -13,12 +10,9 @@ const CLOUDINARY_VIDEO = {
   upload_preset: 'ourmoments_unsigned'
 };
 
-// ========================================
-// UPLOAD TRỰC TIẾP LÊN CLOUDINARY
-// ========================================
 export const uploadMedia = async (file, onProgress) => {
   try {
-    console.log('📤 Starting direct Cloudinary upload:', {
+    console.log(' Starting direct Cloudinary upload:', {
       name: file.name,
       type: file.type,
       size: `${(file.size / 1024 / 1024).toFixed(2)}MB`
@@ -34,7 +28,7 @@ export const uploadMedia = async (file, onProgress) => {
 
     const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${config.cloud_name}/${isVideo ? 'video' : 'image'}/upload`;
 
-    console.log(`📡 Uploading to: ${cloudinaryUrl}`);
+    console.log(` Uploading to: ${cloudinaryUrl}`);
 
     const xhr = new XMLHttpRequest();
     
@@ -42,7 +36,7 @@ export const uploadMedia = async (file, onProgress) => {
       xhr.upload.addEventListener('progress', (e) => {
         if (e.lengthComputable) {
           const percentComplete = Math.round((e.loaded * 100) / e.total);
-          console.log(`📊 Cloudinary upload progress: ${percentComplete}%`);
+          console.log(` Cloudinary upload progress: ${percentComplete}%`);
           if (onProgress) {
             onProgress(percentComplete);
           }
@@ -53,7 +47,7 @@ export const uploadMedia = async (file, onProgress) => {
         if (xhr.status === 200) {
           try {
             const cloudinaryResult = JSON.parse(xhr.responseText);
-            console.log('✅ Cloudinary upload successful:', cloudinaryResult.secure_url);
+            console.log(' Cloudinary upload successful:', cloudinaryResult.secure_url);
 
             const metadata = {
               url: cloudinaryResult.secure_url,
@@ -62,13 +56,13 @@ export const uploadMedia = async (file, onProgress) => {
               thumbnail: isVideo ? cloudinaryResult.secure_url.replace(/\.[^.]+$/, '.jpg') : null
             };
 
-            console.log('💾 Saving metadata to database...');
+            console.log(' Saving metadata to database...');
             const response = await api.post('/media/save-metadata', metadata);
-            console.log('✅ Metadata saved successfully');
+            console.log('Metadata saved successfully');
             
             resolve(response.data);
           } catch (error) {
-            console.error('❌ Failed to save metadata:', error);
+            console.error(' Failed to save metadata:', error);
             reject(new Error('Upload thành công nhưng lỗi lưu database'));
           }
         } else {
@@ -77,12 +71,12 @@ export const uploadMedia = async (file, onProgress) => {
       });
 
       xhr.addEventListener('error', () => {
-        console.error('❌ Network error during Cloudinary upload');
+        console.error(' Network error during Cloudinary upload');
         reject(new Error('Lỗi kết nối Cloudinary'));
       });
 
       xhr.addEventListener('abort', () => {
-        console.warn('⚠️ Upload cancelled');
+        console.warn(' Upload cancelled');
         reject(new Error('Upload bị hủy'));
       });
 
@@ -91,14 +85,11 @@ export const uploadMedia = async (file, onProgress) => {
     });
 
   } catch (error) {
-    console.error('❌ Upload error:', error);
+    console.error(' Upload error:', error);
     throw error;
   }
 };
 
-// ========================================
-// GET IMAGES ONLY
-// ========================================
 export const getImageMedia = async (page = 1, limit = 20) => {
   try {
     const response = await api.get('/media/images', {
@@ -111,9 +102,6 @@ export const getImageMedia = async (page = 1, limit = 20) => {
   }
 };
 
-// ========================================
-// GET VIDEOS ONLY
-// ========================================
 export const getVideoMedia = async (page = 1, limit = 20) => {
   try {
     const response = await api.get('/media/videos', {
@@ -126,9 +114,6 @@ export const getVideoMedia = async (page = 1, limit = 20) => {
   }
 };
 
-// ========================================
-// GET MEDIA BY ID
-// ========================================
 export const getMediaById = async (id) => {
   try {
     const response = await api.get(`/media/${id}`);
@@ -139,9 +124,6 @@ export const getMediaById = async (id) => {
   }
 };
 
-// ========================================
-// UPDATE MEDIA
-// ========================================
 export const updateMedia = async (id, updateData) => {
   try {
     const response = await api.put(`/media/${id}`, updateData);
@@ -152,9 +134,6 @@ export const updateMedia = async (id, updateData) => {
   }
 };
 
-// ========================================
-// DELETE MEDIA
-// ========================================
 export const deleteMedia = async (id) => {
   try {
     const response = await api.delete(`/media/${id}`);

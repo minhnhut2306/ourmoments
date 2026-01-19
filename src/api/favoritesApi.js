@@ -1,10 +1,5 @@
 import { api } from './baseApi';
 
-// ==================== FAVORITES API ====================
-
-/**
- * Add media to favorites
- */
 export const addFavorite = async (mediaId) => {
   try {
     const response = await api.post('/favorites', { mediaId });
@@ -15,9 +10,6 @@ export const addFavorite = async (mediaId) => {
   }
 };
 
-/**
- * Get all favorites
- */
 export const getAllFavorites = async (page = 1, limit = 20) => {
   try {
     const response = await api.get('/favorites', {
@@ -30,9 +22,6 @@ export const getAllFavorites = async (page = 1, limit = 20) => {
   }
 };
 
-/**
- * Get favorite by ID
- */
 export const getFavoriteById = async (id) => {
   try {
     const response = await api.get(`/favorites/${id}`);
@@ -43,9 +32,6 @@ export const getFavoriteById = async (id) => {
   }
 };
 
-/**
- * Check if media is favorite
- */
 export const checkIsFavorite = async (mediaId) => {
   try {
     const response = await api.get(`/favorites/check/${mediaId}`);
@@ -56,9 +42,6 @@ export const checkIsFavorite = async (mediaId) => {
   }
 };
 
-/**
- * Remove favorite by favorite ID
- */
 export const removeFavorite = async (id) => {
   try {
     const response = await api.delete(`/favorites/${id}`);
@@ -69,9 +52,6 @@ export const removeFavorite = async (id) => {
   }
 };
 
-/**
- * Remove favorite by media ID
- */
 export const removeFavoriteByMediaId = async (mediaId) => {
   try {
     const response = await api.delete(`/favorites/media/${mediaId}`);

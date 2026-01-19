@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo, memo } from 'react';
 import { Heart } from 'lucide-react';
 import { getAllFavorites } from '../../api/favoritesApi';
 
-// ✅ Memoize slide item để tránh re-render
 const SlideItem = memo(({ memory, index, currentSlide, totalSlides, onClick }) => {
   const getSlideStyle = useMemo(() => {
     const diff = index - currentSlide;
@@ -50,7 +49,7 @@ const SlideItem = memo(({ memory, index, currentSlide, totalSlides, onClick }) =
           src={memory.image} 
           alt={`Memory ${memory.id}`}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-          loading="lazy" // ✅ Lazy loading
+          loading="lazy"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
       </div>
@@ -60,7 +59,6 @@ const SlideItem = memo(({ memory, index, currentSlide, totalSlides, onClick }) =
 
 SlideItem.displayName = 'SlideItem';
 
-// ✅ Memoize thumbnail
 const Thumbnail = memo(({ memory, index, isActive, onClick }) => (
   <button
     onClick={() => onClick(index)}
@@ -77,7 +75,7 @@ const Thumbnail = memo(({ memory, index, isActive, onClick }) => (
       src={memory.image}
       alt={`Memory ${memory.id}`}
       className="w-full h-full object-cover"
-      loading="lazy" // ✅ Lazy loading
+      loading="lazy"
     />
   </button>
 ));
@@ -95,7 +93,6 @@ function MemoryCarousel({ currentSlide, onSlideChange }) {
       try {
         setLoading(true);
         
-        // ✅ CHỈ load 20 favorites thay vì 100
         const response = await getAllFavorites(1, 20);
         
         if (mounted && response.status === 'success') {
@@ -124,7 +121,6 @@ function MemoryCarousel({ currentSlide, onSlideChange }) {
     };
   }, []);
 
-  // ✅ Auto slide với cleanup
   useEffect(() => {
     if (memories.length === 0) return;
 
@@ -160,7 +156,6 @@ function MemoryCarousel({ currentSlide, onSlideChange }) {
 
   return (
     <div className="bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 rounded-3xl p-6 shadow-2xl relative overflow-hidden border border-white/50">
-      {/* ✅ Giảm số lượng decorative elements */}
       <div className="absolute inset-0 bg-gradient-to-br from-pink-100/20 via-transparent to-purple-100/20"></div>
       
       <div className="text-center mb-4 relative z-10">

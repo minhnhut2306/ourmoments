@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
-// ✅ Throttle helper
 function throttle(func, delay) {
   let lastCall = 0;
   return function(...args) {
@@ -21,11 +20,10 @@ function usePullToRefresh() {
 
   const threshold = 100;
 
-  // ✅ Throttled update để giảm re-render
   const updatePullDistance = useCallback(
     throttle((distance) => {
       setPullDistance(distance);
-    }, 16), // ~60fps
+    }, 16),
     []
   );
 
@@ -47,9 +45,8 @@ function usePullToRefresh() {
       const distance = currentY - startYRef.current;
 
       if (distance > 0) {
-        // ✅ Throttle để giảm tải
         const now = Date.now();
-        if (now - lastUpdateRef.current > 16) { // ~60fps
+        if (now - lastUpdateRef.current > 16) {
           lastUpdateRef.current = now;
           
           const dampedDistance = Math.pow(distance, 0.85);
@@ -70,8 +67,7 @@ function usePullToRefresh() {
       if (pullDistance >= threshold) {
         setIsRefreshing(true);
         
-        // ✅ Delay ngắn hơn
-        await new Promise(resolve => setTimeout(resolve, 1500)); // Giảm từ 2s → 1.5s
+        await new Promise(resolve => setTimeout(resolve, 1500));
         
         window.location.reload();
       } else {

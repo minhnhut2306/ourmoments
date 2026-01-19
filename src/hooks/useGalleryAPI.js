@@ -1,13 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import {
-  uploadMedia,
-  getImageMedia,
-  getVideoMedia,
-  deleteMedia
-} from '../api/mediaApi';
+import { uploadMedia, getImageMedia, getVideoMedia, deleteMedia } from '../api/mediaApi';
 
-const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
-const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 50MB
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
+const MAX_VIDEO_SIZE = 50 * 1024 * 1024;
 
 function useGalleryAPI() {
   const [images, setImages] = useState([]);
@@ -17,24 +12,17 @@ function useGalleryAPI() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
 
-  // ==================== TOAST ====================
   const showToast = useCallback((message, type = 'success') => {
     setToast({ show: true, message, type });
     setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 3000);
   }, []);
 
-  // ==================== LOAD DATA ====================
-  
-  /**
-   * ✅ Load images và videos riêng biệt
-   */
   const loadGalleryData = useCallback(async () => {
     try {
       setLoading(true);
       
       console.log('📥 Loading gallery data...');
       
-      // ✅ Load song song images và videos
       const [imagesResponse, videosResponse] = await Promise.all([
         getImageMedia(1, 100),
         getVideoMedia(1, 100)
@@ -61,13 +49,10 @@ function useGalleryAPI() {
     }
   }, [showToast]);
 
-  // ✅ Load data chỉ 1 lần khi mount
   useEffect(() => {
     loadGalleryData();
   }, [loadGalleryData]);
 
-  // ==================== UPLOAD FILES ====================
-  
   const handleUploadFiles = async (files) => {
     const validFiles = [];
     const rejectedFiles = [];
@@ -161,8 +146,6 @@ function useGalleryAPI() {
     }
   };
 
-  // ==================== DELETE MEDIA ====================
-  
   const handleDeleteMedia = async (mediaId) => {
     try {
       const response = await deleteMedia(mediaId);
@@ -177,11 +160,6 @@ function useGalleryAPI() {
     }
   };
 
-  // ==================== COUNTS ====================
-  
-  /**
-   * ✅ useMemo để cache counts
-   */
   const totalCounts = useMemo(() => {
     let imageCount = 0;
     let videoCount = 0;
@@ -215,11 +193,6 @@ function useGalleryAPI() {
   };
 }
 
-// ==================== HELPER FUNCTIONS ====================
-
-/**
- * ✅ Optimized grouping với Map
- */
 function groupMediaByDate(mediaList) {
   const grouped = new Map();
 

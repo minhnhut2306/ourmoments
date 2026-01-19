@@ -30,7 +30,7 @@ const startKeepAlive = () => {
     } catch (error) {
       console.log('Keep-alive ping failed (server might be sleeping)');
     }
-  }, 600000); // 10 phút
+  }, 600000);
 
   console.log('Keep-alive started - Ping every 10 minutes');
 };
@@ -48,7 +48,6 @@ if (typeof window !== 'undefined') {
   window.addEventListener('beforeunload', stopKeepAlive);
 }
 
-// ✅ NO CACHE - Simple request interceptor
 api.interceptors.request.use(
   (config) => {
     console.log(`API Request: ${config.method?.toUpperCase()} ${config.url}`, config.params);
@@ -57,7 +56,6 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// ✅ NO CACHE - Simple response interceptor
 api.interceptors.response.use(
   (response) => {
     console.log(`API Response: ${response.config.url} - ${response.status}`, {
@@ -72,7 +70,6 @@ api.interceptors.response.use(
       const { status, data } = error.response;
       console.error(`API Error [${status}]:`, data?.msg || error.message);
 
-      // CHỈ retry với timeout
       if (!originalRequest._retry && error.code === 'ECONNABORTED') {
         originalRequest._retry = true;
         await new Promise(resolve => setTimeout(resolve, 1000));
@@ -88,11 +85,7 @@ api.interceptors.response.use(
   }
 );
 
-export const apiRequest = async (
-  endpoint,
-  method = "GET",
-  body = null
-) => {
+export const apiRequest = async (endpoint, method = "GET", body = null) => {
   try {
     const config = {
       method,

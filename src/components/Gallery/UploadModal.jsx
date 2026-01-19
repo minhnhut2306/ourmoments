@@ -10,8 +10,8 @@ function UploadModal({ show, onClose, onUpload }) {
 
   if (!show) return null;
 
-  const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
-  const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 50MB
+  const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
+  const MAX_VIDEO_SIZE = 50 * 1024 * 1024;
 
   const handleFileSelect = (e) => {
     const files = Array.from(e.target.files);
@@ -26,7 +26,6 @@ function UploadModal({ show, onClose, onUpload }) {
 
       if (isImage) {
         if (file.size > MAX_IMAGE_SIZE) {
-          // ✅ Ảnh quá lớn → sẽ nén tự động
           needCompress.push(file.name);
         }
         validFiles.push(file);
@@ -41,7 +40,6 @@ function UploadModal({ show, onClose, onUpload }) {
       }
     });
 
-    // ✅ Thông báo nếu có ảnh cần nén
     if (needCompress.length > 0) {
       setErrors([
         ...fileErrors,
@@ -64,11 +62,10 @@ function UploadModal({ show, onClose, onUpload }) {
       setCompressing(true);
       setCompressProgress({ current: 0, total: selectedFiles.length });
 
-      // ✅ Tự động nén ảnh quá lớn
       console.log('🔄 Checking and compressing images...');
       const compressedFiles = await compressImages(
         selectedFiles,
-        10, // Max 10MB
+        10,
         (current, total) => {
           setCompressProgress({ current, total });
         }
@@ -76,10 +73,8 @@ function UploadModal({ show, onClose, onUpload }) {
 
       console.log(`✅ Compression complete! Processing ${compressedFiles.length} files`);
 
-      // Upload files đã nén
       onUpload(compressedFiles);
       
-      // Reset state
       setSelectedFiles([]);
       setErrors([]);
       setCompressing(false);
@@ -120,7 +115,6 @@ function UploadModal({ show, onClose, onUpload }) {
           </button>
         </div>
 
-        {/* ✅ Thông báo nén ảnh */}
         {compressing && (
           <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
             <div className="flex items-center gap-2">
@@ -137,7 +131,6 @@ function UploadModal({ show, onClose, onUpload }) {
           </div>
         )}
 
-        {/* ✅ Hiển thị lỗi/cảnh báo */}
         {errors.length > 0 && !compressing && (
           <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
             <div className="flex items-start gap-2">
@@ -156,7 +149,6 @@ function UploadModal({ show, onClose, onUpload }) {
           </div>
         )}
 
-        {/* ✅ Hiển thị file đã chọn */}
         {selectedFiles.length > 0 && !compressing && (
           <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
             <p className="text-sm font-semibold text-green-700 mb-2">
@@ -178,7 +170,6 @@ function UploadModal({ show, onClose, onUpload }) {
           </div>
         )}
 
-        {/* ✅ Nút chọn file */}
         <label className={`block ${compressing ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} mb-4`}>
           <input
             type="file"
@@ -206,7 +197,6 @@ function UploadModal({ show, onClose, onUpload }) {
           </div>
         </label>
 
-        {/* ✅ Nút tải lên */}
         <button
           onClick={handleUploadClick}
           disabled={selectedFiles.length === 0 || compressing}
