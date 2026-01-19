@@ -1,4 +1,3 @@
-import React from 'react';
 import { X, Download } from 'lucide-react';
 
 function ImageModal({ image, onClose, onDownload, downloading }) {
@@ -34,6 +33,5 @@ function ImageModal({ image, onClose, onDownload, downloading }) {
     </div>
   );
 }
-
 
 export default ImageModal;

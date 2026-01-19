@@ -1,8 +1,7 @@
-import { Calendar, Heart, Play, Image, Video } from 'lucide-react';
+import { Calendar, Heart, Play, Image, Video, Trash2 } from 'lucide-react';
 import { memo } from 'react';
 
-// ✅ Memoize từng item
-const GalleryItem = memo(({ item, isFavorite, onToggleFavorite, onImageClick, onVideoClick }) => {
+const GalleryItem = memo(({ item, isFavorite, onToggleFavorite, onImageClick, onVideoClick, onDelete }) => {
   const handleClick = () => {
     if (item.type === 'video') {
       onVideoClick(item);
@@ -14,6 +13,11 @@ const GalleryItem = memo(({ item, isFavorite, onToggleFavorite, onImageClick, on
   const handleFavoriteClick = (e) => {
     e.stopPropagation();
     onToggleFavorite(item);
+  };
+
+  const handleDeleteClick = (e) => {
+    e.stopPropagation();
+    onDelete(item);
   };
 
   return (
@@ -28,7 +32,7 @@ const GalleryItem = memo(({ item, isFavorite, onToggleFavorite, onImageClick, on
               src={item.thumbnail}
               alt={item.name}
               className="w-full h-full object-cover"
-              loading="lazy" // ✅ Lazy loading
+              loading="lazy"
             />
           ) : (
             <div className="absolute inset-0 bg-gradient-to-br from-purple-400 to-pink-400" />
@@ -43,6 +47,14 @@ const GalleryItem = memo(({ item, isFavorite, onToggleFavorite, onImageClick, on
           <div className="absolute top-2 left-2 bg-purple-600 text-white px-2 py-1 rounded-md text-xs font-semibold">
             VIDEO
           </div>
+
+          {/* Delete button for video */}
+          <button
+            onClick={handleDeleteClick}
+            className="absolute top-2 right-2 p-1.5 bg-black/30 backdrop-blur-sm rounded-full transition-all z-20 hover:scale-110 hover:bg-red-500"
+          >
+            <Trash2 className="w-4 h-4 text-white" />
+          </button>
         </>
       ) : (
         <>
@@ -50,11 +62,13 @@ const GalleryItem = memo(({ item, isFavorite, onToggleFavorite, onImageClick, on
             src={item.url}
             alt={item.name}
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-            loading="lazy" // ✅ Lazy loading
+            loading="lazy"
           />
+          
+          {/* Favorite button */}
           <button
             onClick={handleFavoriteClick}
-            className="absolute top-2 right-2 p-1.5 bg-black/30 backdrop-blur-sm rounded-full transition-all z-20 hover:scale-110"
+            className="absolute top-2 left-2 p-1.5 bg-black/30 backdrop-blur-sm rounded-full transition-all z-20 hover:scale-110"
           >
             <Heart
               className={`w-5 h-5 transition-all ${
@@ -64,6 +78,14 @@ const GalleryItem = memo(({ item, isFavorite, onToggleFavorite, onImageClick, on
               fill={isFavorite ? '#ef4444' : 'none'}
             />
           </button>
+
+          {/* Delete button */}
+          <button
+            onClick={handleDeleteClick}
+            className="absolute top-2 right-2 p-1.5 bg-black/30 backdrop-blur-sm rounded-full transition-all z-20 hover:scale-110 hover:bg-red-500"
+          >
+            <Trash2 className="w-4 h-4 text-white" />
+          </button>
         </>
       )}
     </div>
@@ -72,8 +94,7 @@ const GalleryItem = memo(({ item, isFavorite, onToggleFavorite, onImageClick, on
 
 GalleryItem.displayName = 'GalleryItem';
 
-// ✅ Memoize date group
-const DateGroup = memo(({ dateGroup, isFavoriteItem, onToggleFavorite, onImageClick, onVideoClick }) => (
+const DateGroup = memo(({ dateGroup, isFavoriteItem, onToggleFavorite, onImageClick, onVideoClick, onDelete }) => (
   <div className="space-y-3">
     <div className="flex items-center gap-2 sticky top-32 bg-gradient-to-r from-pink-50 to-purple-50 py-2 px-3 rounded-lg shadow-sm z-40">
       <Calendar className="w-4 h-4 text-purple-500" />
@@ -90,6 +111,7 @@ const DateGroup = memo(({ dateGroup, isFavoriteItem, onToggleFavorite, onImageCl
           onToggleFavorite={onToggleFavorite}
           onImageClick={onImageClick}
           onVideoClick={onVideoClick}
+          onDelete={onDelete}
         />
       ))}
     </div>
@@ -104,7 +126,8 @@ function GalleryGrid({
   isFavoriteItem, 
   onToggleFavorite, 
   onImageClick, 
-  onVideoClick 
+  onVideoClick,
+  onDelete
 }) {
   if (displayData.length === 0) {
     return (
@@ -130,6 +153,7 @@ function GalleryGrid({
           onToggleFavorite={onToggleFavorite}
           onImageClick={onImageClick}
           onVideoClick={onVideoClick}
+          onDelete={onDelete}
         />
       ))}
     </div>

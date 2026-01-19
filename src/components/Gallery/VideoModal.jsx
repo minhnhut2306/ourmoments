@@ -1,4 +1,3 @@
-
 import { X } from 'lucide-react';
 
 function VideoModal({ video, onClose }) {
@@ -28,4 +27,5 @@ function VideoModal({ video, onClose }) {
     </div>
   );
 }
+
 export default VideoModal;

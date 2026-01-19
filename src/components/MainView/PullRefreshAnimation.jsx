@@ -1,10 +1,6 @@
-
-import React from 'react';
-
 function PullRefreshAnimation({ pullDistance, isRefreshing, threshold }) {
   return (
     <>
-      {/* 🔥 PULL TO REFRESH ANIMATION 🔥 */}
       <div 
         className="fixed left-0 right-0 flex flex-col items-center justify-center pointer-events-none"
         style={{
@@ -15,7 +11,6 @@ function PullRefreshAnimation({ pullDistance, isRefreshing, threshold }) {
       >
         <div className="relative mb-4">
           
-          {/* Outer spinning ring 1 */}
           <div 
             className="absolute w-24 h-24 rounded-full border-[4px] border-white/30 border-t-white border-r-pink-200"
             style={{ 
@@ -29,7 +24,6 @@ function PullRefreshAnimation({ pullDistance, isRefreshing, threshold }) {
             }}
           />
           
-          {/* Outer spinning ring 2 - opposite */}
           <div 
             className="absolute w-24 h-24 rounded-full border-[4px] border-transparent border-b-purple-200 border-l-blue-200"
             style={{ 
@@ -43,7 +37,6 @@ function PullRefreshAnimation({ pullDistance, isRefreshing, threshold }) {
             }}
           />
 
-          {/* Center heart with glow */}
           <div 
             className="absolute flex items-center justify-center"
             style={{
@@ -57,7 +50,6 @@ function PullRefreshAnimation({ pullDistance, isRefreshing, threshold }) {
               transition: 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)'
             }}
           >
-            {/* Glow effect */}
             <div 
               className="absolute inset-0 rounded-full blur-2xl opacity-70"
               style={{
@@ -66,7 +58,6 @@ function PullRefreshAnimation({ pullDistance, isRefreshing, threshold }) {
               }}
             />
             
-            {/* Heart icon */}
             <svg 
               width="48" 
               height="48" 
@@ -94,7 +85,6 @@ function PullRefreshAnimation({ pullDistance, isRefreshing, threshold }) {
             </svg>
           </div>
 
-          {/* Orbiting sparkles */}
           {isRefreshing && (
             <>
               {[0, 60, 120, 180, 240, 300].map((angle, i) => (
@@ -116,7 +106,6 @@ function PullRefreshAnimation({ pullDistance, isRefreshing, threshold }) {
             </>
           )}
 
-          {/* Progress circle */}
           {!isRefreshing && pullDistance > 0 && (
             <svg 
               width="120" 
@@ -158,7 +147,6 @@ function PullRefreshAnimation({ pullDistance, isRefreshing, threshold }) {
           )}
         </div>
 
-        {/* Text loading */}
         <div className="text-center">
           <p 
             className="text-white text-lg font-bold tracking-wide"

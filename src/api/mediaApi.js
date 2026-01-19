@@ -1,41 +1,32 @@
 import { api } from './baseApi';
 
 // ========================================
-// ⚠️ QUAN TRỌNG: THAY CLOUD NAMES CỦA BẠN
+// CLOUDINARY CONFIGURATION
 // ========================================
-// Lấy từ Cloudinary Dashboard: https://console.cloudinary.com/
-// Settings > Account > Cloud name
-
 const CLOUDINARY_IMAGE = {
-  cloud_name: 'dcb0icdta', // ← THAY BẰNG CLOUD NAME THẬT
-  upload_preset: 'ourmoments_unsigned'  // ← Tạo trong Cloudinary Dashboard
+  cloud_name: 'dcb0icdta',
+  upload_preset: 'ourmoments_unsigned'
 };
 
 const CLOUDINARY_VIDEO = {
-  cloud_name: 'dqfida9tv', // ← THAY BẰNG CLOUD NAME THẬT
+  cloud_name: 'dqfida9tv',
   upload_preset: 'ourmoments_unsigned'
 };
 
 // ========================================
 // UPLOAD TRỰC TIẾP LÊN CLOUDINARY
 // ========================================
-/**
- * Upload file trực tiếp lên Cloudinary (không qua backend)
- * Sau đó lưu metadata vào database
- */
 export const uploadMedia = async (file, onProgress) => {
   try {
     console.log('📤 Starting direct Cloudinary upload:', {
       name: file.name,
       type: file.type,
-      size: `${(file.size / 1024 / 1024).toFixed(2)}MB`,
-      lastModified: new Date(file.lastModified)
+      size: `${(file.size / 1024 / 1024).toFixed(2)}MB`
     });
 
     const isVideo = file.type.startsWith('video/');
     const config = isVideo ? CLOUDINARY_VIDEO : CLOUDINARY_IMAGE;
     
-    // 1️⃣ Tạo FormData để upload lên Cloudinary
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', config.upload_preset);
@@ -45,11 +36,9 @@ export const uploadMedia = async (file, onProgress) => {
 
     console.log(`📡 Uploading to: ${cloudinaryUrl}`);
 
-    // 2️⃣ Upload bằng XMLHttpRequest để track progress
     const xhr = new XMLHttpRequest();
     
     return new Promise((resolve, reject) => {
-      // Track upload progress
       xhr.upload.addEventListener('progress', (e) => {
         if (e.lengthComputable) {
           const percentComplete = Math.round((e.loaded * 100) / e.total);
@@ -60,14 +49,12 @@ export const uploadMedia = async (file, onProgress) => {
         }
       });
 
-      // Upload thành công
       xhr.addEventListener('load', async () => {
         if (xhr.status === 200) {
           try {
             const cloudinaryResult = JSON.parse(xhr.responseText);
             console.log('✅ Cloudinary upload successful:', cloudinaryResult.secure_url);
 
-            // 3️⃣ Lưu metadata vào database (rất nhanh)
             const metadata = {
               url: cloudinaryResult.secure_url,
               type: isVideo ? 'video' : 'image',
@@ -89,19 +76,16 @@ export const uploadMedia = async (file, onProgress) => {
         }
       });
 
-      // Upload lỗi
       xhr.addEventListener('error', () => {
         console.error('❌ Network error during Cloudinary upload');
         reject(new Error('Lỗi kết nối Cloudinary'));
       });
 
-      // Upload bị hủy
       xhr.addEventListener('abort', () => {
         console.warn('⚠️ Upload cancelled');
         reject(new Error('Upload bị hủy'));
       });
 
-      // Gửi request
       xhr.open('POST', cloudinaryUrl);
       xhr.send(formData);
     });
@@ -113,28 +97,8 @@ export const uploadMedia = async (file, onProgress) => {
 };
 
 // ========================================
-// CÁC HÀM KHÁC (GIỮ NGUYÊN)
+// GET IMAGES ONLY
 // ========================================
-
-/**
- * Get all media with pagination and type filter
- */
-export const getAllMedia = async (type = null, page = 1, limit = 20) => {
-  try {
-    const params = { page, limit };
-    if (type) params.type = type;
-
-    const response = await api.get('/media', { params });
-    return response.data;
-  } catch (error) {
-    console.error('Get all media error:', error);
-    throw error;
-  }
-};
-
-/**
- * Get only images
- */
 export const getImageMedia = async (page = 1, limit = 20) => {
   try {
     const response = await api.get('/media/images', {
@@ -147,9 +111,9 @@ export const getImageMedia = async (page = 1, limit = 20) => {
   }
 };
 
-/**
- * Get only videos
- */
+// ========================================
+// GET VIDEOS ONLY
+// ========================================
 export const getVideoMedia = async (page = 1, limit = 20) => {
   try {
     const response = await api.get('/media/videos', {
@@ -162,9 +126,9 @@ export const getVideoMedia = async (page = 1, limit = 20) => {
   }
 };
 
-/**
- * Get media by ID
- */
+// ========================================
+// GET MEDIA BY ID
+// ========================================
 export const getMediaById = async (id) => {
   try {
     const response = await api.get(`/media/${id}`);
@@ -175,9 +139,9 @@ export const getMediaById = async (id) => {
   }
 };
 
-/**
- * Update media
- */
+// ========================================
+// UPDATE MEDIA
+// ========================================
 export const updateMedia = async (id, updateData) => {
   try {
     const response = await api.put(`/media/${id}`, updateData);
@@ -188,9 +152,9 @@ export const updateMedia = async (id, updateData) => {
   }
 };
 
-/**
- * Delete media
- */
+// ========================================
+// DELETE MEDIA
+// ========================================
 export const deleteMedia = async (id) => {
   try {
     const response = await api.delete(`/media/${id}`);

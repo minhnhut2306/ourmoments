@@ -1,8 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import {
-  addFavorite,
-  getAllFavorites,
-  removeFavoriteByMediaId} from '../api/favoritesApi';
+import { addFavorite, getAllFavorites, removeFavoriteByMediaId } from '../api/favoritesApi';
 
 const MAX_FAVORITES = 5;
 
@@ -10,9 +7,6 @@ function useFavorites() {
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  /**
-   * Load all favorites from API
-   */
   const loadFavorites = useCallback(async () => {
     try {
       setLoading(true);
@@ -36,23 +30,17 @@ function useFavorites() {
     }
   }, []);
 
-  // Load favorites on mount
   useEffect(() => {
     loadFavorites();
   }, [loadFavorites]);
 
-  /**
-   * Add item to favorites
-   */
   const addToFavorites = async (mediaId) => {
     try {
-      // Check if already favorite
       const isFav = favorites.some(fav => fav.mediaId === mediaId);
       if (isFav) {
         throw new Error('Ảnh này đã có trong danh sách yêu thích');
       }
 
-      // Check limit
       if (favorites.length >= MAX_FAVORITES) {
         throw new Error(`Tối đa ${MAX_FAVORITES} ảnh yêu thích!`);
       }
@@ -60,7 +48,7 @@ function useFavorites() {
       const response = await addFavorite(mediaId);
       
       if (response.status === 'success') {
-        await loadFavorites(); // Reload favorites
+        await loadFavorites();
         return { success: true, message: 'Đã thêm vào yêu thích' };
       }
     } catch (error) {
@@ -70,9 +58,6 @@ function useFavorites() {
     }
   };
 
-  /**
-   * Remove item from favorites
-   */
   const removeFromFavorites = async (mediaId) => {
     try {
       const response = await removeFavoriteByMediaId(mediaId);
@@ -88,15 +73,12 @@ function useFavorites() {
     }
   };
 
-  /**
-   * Toggle favorite status
-   */
   const toggleFavorite = async (item) => {
     if (item.type !== 'image') {
       return { success: false, message: 'Chỉ có thể yêu thích ảnh!', type: 'warning' };
     }
 
-    const isFav = isFavoriteItem(item.id);
+    const isFav = favorites.some(fav => fav.mediaId === item.id);
 
     if (isFav) {
       const result = await removeFromFavorites(item.id);
@@ -107,25 +89,8 @@ function useFavorites() {
     }
   };
 
-  /**
-   * Check if item is favorite
-   */
   const isFavoriteItem = (mediaId) => {
     return favorites.some(fav => fav.mediaId === mediaId);
-  };
-
-  /**
-   * Check if can add more favorites
-   */
-  const canAddMore = () => {
-    return favorites.length < MAX_FAVORITES;
-  };
-
-  /**
-   * Get favorites count
-   */
-  const getFavoritesCount = () => {
-    return favorites.length;
   };
 
   return {
@@ -133,11 +98,8 @@ function useFavorites() {
     loading,
     isFavoriteItem,
     toggleFavorite,
-    addToFavorites,
-    removeFromFavorites,
     loadFavorites,
-    canAddMore,
-    getFavoritesCount,
+    getFavoritesCount: () => favorites.length,
     MAX_FAVORITES
   };
 }

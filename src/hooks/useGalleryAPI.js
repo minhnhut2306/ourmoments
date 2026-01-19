@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   uploadMedia,
-  getAllMedia,
+  getImageMedia,
+  getVideoMedia,
   deleteMedia
 } from '../api/mediaApi';
 
@@ -9,7 +10,8 @@ const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
 const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 50MB
 
 function useGalleryAPI() {
-  const [galleryData, setGalleryData] = useState([]);
+  const [images, setImages] = useState([]);
+  const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -24,7 +26,7 @@ function useGalleryAPI() {
   // ==================== LOAD DATA ====================
   
   /**
-   * ✅ Load media với pagination thông minh
+   * ✅ Load images và videos riêng biệt
    */
   const loadGalleryData = useCallback(async () => {
     try {
@@ -32,16 +34,24 @@ function useGalleryAPI() {
       
       console.log('📥 Loading gallery data...');
       
-      // ✅ CHỈ load 100 items thay vì 1000
-      const response = await getAllMedia(null, 1, 100);
+      // ✅ Load song song images và videos
+      const [imagesResponse, videosResponse] = await Promise.all([
+        getImageMedia(1, 100),
+        getVideoMedia(1, 100)
+      ]);
 
-      if (response.status === 'success') {
-        const mediaList = response.data.media;
-        const grouped = groupMediaByDate(mediaList);
-        
-        console.log(`✅ Loaded ${mediaList.length} items, grouped into ${grouped.length} dates`);
-        
-        setGalleryData(grouped);
+      if (imagesResponse.status === 'success') {
+        const imageList = imagesResponse.data.media;
+        const groupedImages = groupMediaByDate(imageList);
+        console.log(`✅ Loaded ${imageList.length} images`);
+        setImages(groupedImages);
+      }
+
+      if (videosResponse.status === 'success') {
+        const videoList = videosResponse.data.media;
+        const groupedVideos = groupMediaByDate(videoList);
+        console.log(`✅ Loaded ${videoList.length} videos`);
+        setVideos(groupedVideos);
       }
     } catch (error) {
       console.error('❌ Load gallery error:', error);
@@ -126,14 +136,12 @@ function useGalleryAPI() {
         setUploadProgress(100);
         await new Promise(resolve => setTimeout(resolve, 500));
         
-        // ✅ Show toast trước
         if (failedCount > 0) {
           showToast(`Đã tải lên ${successCount}/${validFiles.length} file! (${failedCount} file lỗi)`, 'warning');
         } else {
           showToast(`✅ Đã tải lên ${successCount} file thành công!`, 'success');
         }
         
-        // ✅ Reload data SAU toast (quan trọng!)
         console.log('🔄 Reloading gallery data...');
         await loadGalleryData();
         console.log('✅ Gallery data reloaded!');
@@ -169,44 +177,39 @@ function useGalleryAPI() {
     }
   };
 
-  // ==================== FILTER & GROUP ====================
+  // ==================== COUNTS ====================
   
-  /**
-   * ✅ useMemo để tránh re-calculate
-   */
-  const getFilteredData = useCallback((filterType) => {
-    return galleryData.map(group => ({
-      ...group,
-      items: group.items.filter(item => item.type === filterType)
-    })).filter(group => group.items.length > 0);
-  }, [galleryData]);
-
   /**
    * ✅ useMemo để cache counts
    */
   const totalCounts = useMemo(() => {
-    let images = 0;
-    let videos = 0;
+    let imageCount = 0;
+    let videoCount = 0;
     
-    galleryData.forEach(group => {
-      group.items.forEach(item => {
-        if (item.type === 'image') images++;
-        else if (item.type === 'video') videos++;
-      });
+    images.forEach(group => {
+      imageCount += group.items.length;
     });
     
-    return { images, videos, total: images + videos };
-  }, [galleryData]);
+    videos.forEach(group => {
+      videoCount += group.items.length;
+    });
+    
+    return { 
+      images: imageCount, 
+      videos: videoCount, 
+      total: imageCount + videoCount 
+    };
+  }, [images, videos]);
 
   return {
-    galleryData,
+    images,
+    videos,
     loading,
     uploading,
     uploadProgress,
     toast,
     handleUploadFiles,
     handleDeleteMedia,
-    getFilteredData,
     totalCounts,
     loadGalleryData
   };
@@ -239,7 +242,6 @@ function groupMediaByDate(mediaList) {
     });
   });
 
-  // ✅ Convert to array và sort
   return Array.from(grouped.entries())
     .map(([date, items]) => ({
       date,
