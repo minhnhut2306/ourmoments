@@ -40,7 +40,7 @@ function MemoryCarousel({ currentSlide, onSlideChange }) {
 
     const interval = setInterval(() => {
       onSlideChange((prev) => (prev + 1) % memories.length);
-    }, 10000);
+    }, 5000);
 
     return () => clearInterval(interval);
   }, [memories.length, onSlideChange]);
