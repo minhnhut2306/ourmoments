@@ -6,7 +6,7 @@ import {
 } from '../api/mediaApi';
 
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
-const MAX_VIDEO_SIZE = 4 * 1024 * 1024; // 4MB - Vercel limit
+const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 50MB
 
 function useGalleryAPI() {
   const [galleryData, setGalleryData] = useState([]);
@@ -32,8 +32,7 @@ function useGalleryAPI() {
       
       console.log('📥 Loading gallery data...');
       
-      // ✅ Force reload với timestamp để bypass cache
-      const timestamp = Date.now();
+      // ✅ CHỈ load 100 items thay vì 1000
       const response = await getAllMedia(null, 1, 100);
 
       if (response.status === 'success') {
@@ -41,11 +40,6 @@ function useGalleryAPI() {
         const grouped = groupMediaByDate(mediaList);
         
         console.log(`✅ Loaded ${mediaList.length} items, grouped into ${grouped.length} dates`);
-        console.log('📊 First 3 items:', mediaList.slice(0, 3).map(m => ({
-          id: m._id,
-          type: m.type,
-          created: m.createdAt
-        })));
         
         setGalleryData(grouped);
       }
@@ -130,6 +124,7 @@ function useGalleryAPI() {
       
       if (successCount > 0) {
         setUploadProgress(100);
+        await new Promise(resolve => setTimeout(resolve, 500));
         
         // ✅ Show toast trước
         if (failedCount > 0) {
@@ -138,11 +133,7 @@ function useGalleryAPI() {
           showToast(`✅ Đã tải lên ${successCount} file thành công!`, 'success');
         }
         
-        // ✅ DELAY 3 giây để backend kịp process
-        console.log('⏳ Waiting 3s for backend to process...');
-        await new Promise(resolve => setTimeout(resolve, 3000));
-        
-        // ✅ Reload data
+        // ✅ Reload data SAU toast (quan trọng!)
         console.log('🔄 Reloading gallery data...');
         await loadGalleryData();
         console.log('✅ Gallery data reloaded!');
