@@ -1,57 +1,87 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useCallback } from 'react';
 import { uploadMedia, getImageMedia, getVideoMedia, deleteMedia } from '../api/mediaApi';
 
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
 const MAX_VIDEO_SIZE = 50 * 1024 * 1024;
 
 function useGalleryAPI() {
-  const [images, setImages] = useState([]);
-  const [videos, setVideos] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+  const [deleting, setDeleting] = useState(false);
 
   const showToast = useCallback((message, type = 'success') => {
     setToast({ show: true, message, type });
     setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 3000);
   }, []);
 
-  const loadGalleryData = useCallback(async () => {
+  // Load images with pagination
+  const loadImages = useCallback(async (page = 1, limit = 20) => {
     try {
-      setLoading(true);
+      console.log(`📥 Loading images page ${page}...`);
       
-      console.log('📥 Loading gallery data...');
+      const response = await getImageMedia(page, limit);
+
+      if (response.status === 'success') {
+        const imageList = response.data.media.map(media => ({
+          id: media._id,
+          type: media.type,
+          url: media.url,
+          thumbnail: media.thumbnail || media.url,
+          publicId: media.publicId,
+          name: `${media.type}_${media._id}`,
+          createdAt: media.createdAt
+        }));
+        
+        console.log(`✅ Loaded ${imageList.length} images (page ${page})`);
+        
+        return {
+          data: imageList,
+          hasMore: response.data.pagination.page < response.data.pagination.totalPages,
+          total: response.data.pagination.total
+        };
+      }
       
-      const [imagesResponse, videosResponse] = await Promise.all([
-        getImageMedia(1, 100),
-        getVideoMedia(1, 100)
-      ]);
-
-      if (imagesResponse.status === 'success') {
-        const imageList = imagesResponse.data.media;
-        const groupedImages = groupMediaByDate(imageList);
-        console.log(`✅ Loaded ${imageList.length} images`);
-        setImages(groupedImages);
-      }
-
-      if (videosResponse.status === 'success') {
-        const videoList = videosResponse.data.media;
-        const groupedVideos = groupMediaByDate(videoList);
-        console.log(`✅ Loaded ${videoList.length} videos`);
-        setVideos(groupedVideos);
-      }
+      return { data: [], hasMore: false, total: 0 };
     } catch (error) {
-      console.error('❌ Load gallery error:', error);
-      showToast('Lỗi tải dữ liệu', 'error');
-    } finally {
-      setLoading(false);
+      console.error('❌ Load images error:', error);
+      throw error;
     }
-  }, [showToast]);
+  }, []);
 
-  useEffect(() => {
-    loadGalleryData();
-  }, [loadGalleryData]);
+  // Load videos with pagination
+  const loadVideos = useCallback(async (page = 1, limit = 20) => {
+    try {
+      console.log(`📥 Loading videos page ${page}...`);
+      
+      const response = await getVideoMedia(page, limit);
+
+      if (response.status === 'success') {
+        const videoList = response.data.media.map(media => ({
+          id: media._id,
+          type: media.type,
+          url: media.url,
+          thumbnail: media.thumbnail || media.url,
+          publicId: media.publicId,
+          name: `${media.type}_${media._id}`,
+          createdAt: media.createdAt
+        }));
+        
+        console.log(`✅ Loaded ${videoList.length} videos (page ${page})`);
+        
+        return {
+          data: videoList,
+          hasMore: response.data.pagination.page < response.data.pagination.totalPages,
+          total: response.data.pagination.total
+        };
+      }
+      
+      return { data: [], hasMore: false, total: 0 };
+    } catch (error) {
+      console.error('❌ Load videos error:', error);
+      throw error;
+    }
+  }, []);
 
   const handleUploadFiles = async (files) => {
     const validFiles = [];
@@ -127,10 +157,6 @@ function useGalleryAPI() {
           showToast(`✅ Đã tải lên ${successCount} file thành công!`, 'success');
         }
         
-        console.log('🔄 Reloading gallery data...');
-        await loadGalleryData();
-        console.log('✅ Gallery data reloaded!');
-        
         return true;
       } else {
         showToast('❌ Tất cả file đều lỗi khi upload', 'error');
@@ -148,85 +174,33 @@ function useGalleryAPI() {
 
   const handleDeleteMedia = async (mediaId) => {
     try {
+      setDeleting(true);
       const response = await deleteMedia(mediaId);
       
       if (response.status === 'success') {
         showToast('Đã xóa media', 'success');
-        await loadGalleryData();
+        return true;
       }
+      return false;
     } catch (error) {
       console.error('Delete media error:', error);
       showToast('Lỗi xóa media', 'error');
+      return false;
+    } finally {
+      setDeleting(false);
     }
   };
-
-  const totalCounts = useMemo(() => {
-    let imageCount = 0;
-    let videoCount = 0;
-    
-    images.forEach(group => {
-      imageCount += group.items.length;
-    });
-    
-    videos.forEach(group => {
-      videoCount += group.items.length;
-    });
-    
-    return { 
-      images: imageCount, 
-      videos: videoCount, 
-      total: imageCount + videoCount 
-    };
-  }, [images, videos]);
 
   return {
-    images,
-    videos,
-    loading,
+    loadImages,
+    loadVideos,
     uploading,
     uploadProgress,
+    deleting,
     toast,
     handleUploadFiles,
-    handleDeleteMedia,
-    totalCounts,
-    loadGalleryData
+    handleDeleteMedia
   };
-}
-
-function groupMediaByDate(mediaList) {
-  const grouped = new Map();
-
-  mediaList.forEach(media => {
-    const date = new Date(media.createdAt);
-    const dateStr = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${date.getFullYear()}`;
-
-    if (!grouped.has(dateStr)) {
-      grouped.set(dateStr, []);
-    }
-
-    grouped.get(dateStr).push({
-      id: media._id,
-      type: media.type,
-      url: media.url,
-      thumbnail: media.thumbnail || media.url,
-      publicId: media.publicId,
-      name: `${media.type}_${dateStr}_${media._id}`,
-      createdAt: media.createdAt
-    });
-  });
-
-  return Array.from(grouped.entries())
-    .map(([date, items]) => ({
-      date,
-      items: items.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    }))
-    .sort((a, b) => {
-      const [dayA, monthA, yearA] = a.date.split('-').map(Number);
-      const [dayB, monthB, yearB] = b.date.split('-').map(Number);
-      const dateA = new Date(yearA, monthA - 1, dayA);
-      const dateB = new Date(yearB, monthB - 1, dayB);
-      return dateB - dateA;
-    });
 }
 
 export { useGalleryAPI };

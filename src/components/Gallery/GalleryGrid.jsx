@@ -51,7 +51,7 @@ const GalleryItem = memo(({ item, isFavorite, onToggleFavorite, onImageClick, on
           {/* Delete button for video - top right */}
           <button
             onClick={handleDeleteClick}
-            className="absolute top-0.5 right-0.5 p-0.5 transition-all z-20 active:scale-95"
+            className="absolute top-1 right-1 p-1 transition-all z-20 active:scale-95"
             title="Xóa video"
           >
             <X 
@@ -76,7 +76,7 @@ const GalleryItem = memo(({ item, isFavorite, onToggleFavorite, onImageClick, on
           {/* Favorite button - top left */}
           <button
             onClick={handleFavoriteClick}
-            className="absolute top-0.5 left-0.5 p-0.5 transition-all z-20 active:scale-95"
+            className="absolute top-1 left-1 p-1 transition-all z-20 active:scale-95"
             title={isFavorite ? "Bỏ yêu thích" : "Thêm vào yêu thích"}
           >
             <Heart
@@ -92,7 +92,7 @@ const GalleryItem = memo(({ item, isFavorite, onToggleFavorite, onImageClick, on
           {/* Delete button - top right */}
           <button
             onClick={handleDeleteClick}
-            className="absolute top-0.5 right-0.5 p-0.5 transition-all z-20 active:scale-95"
+            className="absolute top-1 right-1 p-1 transition-all z-20 active:scale-95"
             title="Xóa ảnh"
           >
             <X 
