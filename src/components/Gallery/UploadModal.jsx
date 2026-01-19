@@ -115,7 +115,7 @@ function UploadModal({ show, onClose, onUpload }) {
         <label className="block cursor-pointer">
           <input
             type="file"
-            accept="image/*"
+            accept="image/*,video/*"
             multiple
             className="hidden"
             onChange={handleFileSelect}
@@ -123,18 +123,19 @@ function UploadModal({ show, onClose, onUpload }) {
           <div className="border-2 border-dashed border-pink-300 rounded-2xl p-8 text-center hover:border-purple-400 hover:bg-pink-50 transition">
             <div className="flex justify-center gap-4 mb-3">
               <Camera className="w-12 h-12 text-pink-400" />
+              <Video className="w-12 h-12 text-purple-400" />
             </div>
-            <p className="text-gray-700 font-semibold mb-1">Chọn ảnh</p>
+            <p className="text-gray-700 font-semibold mb-1">Chọn ảnh hoặc video</p>
             <p className="text-sm text-gray-500 mb-3">Có thể chọn nhiều file cùng lúc</p>
             <div className="space-y-1">
               <p className="text-xs text-gray-600">
                 📷 Ảnh: tối đa <strong>10MB</strong>
               </p>
-              <p className="text-xs text-red-500 font-semibold mt-3">
-                ⚠️ Upload video tạm thời bị tắt do lỗi backend Vercel
+              <p className="text-xs text-gray-600">
+                🎥 Video: tối đa <strong>4MB</strong>
               </p>
-              <p className="text-xs text-gray-400">
-                (Video vẫn hoạt động với localhost)
+              <p className="text-xs text-red-500 font-semibold">
+                ⚠️ Video lớn hơn 4MB sẽ bị lỗi do giới hạn server
               </p>
             </div>
           </div>
