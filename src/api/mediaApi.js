@@ -1,82 +1,120 @@
 import { api } from './baseApi';
 
-// ==================== MEDIA API ====================
+// ========================================
+// ⚠️ QUAN TRỌNG: THAY CLOUD NAMES CỦA BẠN
+// ========================================
+// Lấy từ Cloudinary Dashboard: https://console.cloudinary.com/
+// Settings > Account > Cloud name
 
+const CLOUDINARY_IMAGE = {
+  cloud_name: 'dcb0icdta', // ← THAY BẰNG CLOUD NAME THẬT
+  upload_preset: 'ourmoments_unsigned'  // ← Tạo trong Cloudinary Dashboard
+};
+
+const CLOUDINARY_VIDEO = {
+  cloud_name: 'dqfida9tv', // ← THAY BẰNG CLOUD NAME THẬT
+  upload_preset: 'ourmoments_unsigned'
+};
+
+// ========================================
+// UPLOAD TRỰC TIẾP LÊN CLOUDINARY
+// ========================================
 /**
- * Upload media (image or video) with progress tracking
+ * Upload file trực tiếp lên Cloudinary (không qua backend)
+ * Sau đó lưu metadata vào database
  */
 export const uploadMedia = async (file, onProgress) => {
   try {
-    console.log('📤 Starting upload:', {
+    console.log('📤 Starting direct Cloudinary upload:', {
       name: file.name,
       type: file.type,
       size: `${(file.size / 1024 / 1024).toFixed(2)}MB`,
       lastModified: new Date(file.lastModified)
     });
 
+    const isVideo = file.type.startsWith('video/');
+    const config = isVideo ? CLOUDINARY_VIDEO : CLOUDINARY_IMAGE;
+    
+    // 1️⃣ Tạo FormData để upload lên Cloudinary
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('upload_preset', config.upload_preset);
+    formData.append('folder', isVideo ? 'ourmoments/videos' : 'ourmoments/images');
 
-    console.log('📦 FormData created:', {
-      hasFile: formData.has('file'),
-      entries: Array.from(formData.entries()).map(([key]) => key)
-    });
+    const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${config.cloud_name}/${isVideo ? 'video' : 'image'}/upload`;
 
-    // ✅ Tăng timeout lên 5 phút cho video
-    const isVideo = file.type.startsWith('video/');
-    const timeout = isVideo ? 300000 : 60000; // 5 phút cho video, 1 phút cho ảnh
+    console.log(`📡 Uploading to: ${cloudinaryUrl}`);
 
-    console.log(`⏱️ Timeout set to: ${timeout / 1000}s`);
-
-    const response = await api.post('/media/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-      timeout, // ✅ Dynamic timeout
-      onUploadProgress: (progressEvent) => {
-        const percentCompleted = Math.round(
-          (progressEvent.loaded * 100) / progressEvent.total
-        );
-        console.log(`📊 Upload progress: ${percentCompleted}% (${progressEvent.loaded}/${progressEvent.total} bytes)`);
-        if (onProgress) {
-          onProgress(percentCompleted);
+    // 2️⃣ Upload bằng XMLHttpRequest để track progress
+    const xhr = new XMLHttpRequest();
+    
+    return new Promise((resolve, reject) => {
+      // Track upload progress
+      xhr.upload.addEventListener('progress', (e) => {
+        if (e.lengthComputable) {
+          const percentComplete = Math.round((e.loaded * 100) / e.total);
+          console.log(`📊 Cloudinary upload progress: ${percentComplete}%`);
+          if (onProgress) {
+            onProgress(percentComplete);
+          }
         }
-      },
+      });
+
+      // Upload thành công
+      xhr.addEventListener('load', async () => {
+        if (xhr.status === 200) {
+          try {
+            const cloudinaryResult = JSON.parse(xhr.responseText);
+            console.log('✅ Cloudinary upload successful:', cloudinaryResult.secure_url);
+
+            // 3️⃣ Lưu metadata vào database (rất nhanh)
+            const metadata = {
+              url: cloudinaryResult.secure_url,
+              type: isVideo ? 'video' : 'image',
+              publicId: cloudinaryResult.public_id,
+              thumbnail: isVideo ? cloudinaryResult.secure_url.replace(/\.[^.]+$/, '.jpg') : null
+            };
+
+            console.log('💾 Saving metadata to database...');
+            const response = await api.post('/media/save-metadata', metadata);
+            console.log('✅ Metadata saved successfully');
+            
+            resolve(response.data);
+          } catch (error) {
+            console.error('❌ Failed to save metadata:', error);
+            reject(new Error('Upload thành công nhưng lỗi lưu database'));
+          }
+        } else {
+          reject(new Error(`Cloudinary upload failed: ${xhr.status} ${xhr.statusText}`));
+        }
+      });
+
+      // Upload lỗi
+      xhr.addEventListener('error', () => {
+        console.error('❌ Network error during Cloudinary upload');
+        reject(new Error('Lỗi kết nối Cloudinary'));
+      });
+
+      // Upload bị hủy
+      xhr.addEventListener('abort', () => {
+        console.warn('⚠️ Upload cancelled');
+        reject(new Error('Upload bị hủy'));
+      });
+
+      // Gửi request
+      xhr.open('POST', cloudinaryUrl);
+      xhr.send(formData);
     });
 
-    console.log('✅ Upload successful:', response.data);
-    return response.data;
   } catch (error) {
-    console.error('❌ Upload failed with detailed error:');
-    console.error('Error code:', error.code);
-    console.error('Error message:', error.message);
-    
-    if (error.response) {
-      console.error('Response status:', error.response.status);
-      console.error('Response data:', error.response.data);
-    } else if (error.request) {
-      console.error('No response received');
-      console.error('Request details:', {
-        readyState: error.request.readyState,
-        status: error.request.status,
-        responseURL: error.request.responseURL
-      });
-    }
-    
-    console.error('Full error config:', error.config);
-
-    // ✅ Ném lỗi rõ ràng hơn
-    if (error.code === 'ECONNABORTED') {
-      throw new Error('Upload timeout - Server quá chậm, thử lại sau');
-    } else if (error.code === 'ERR_NETWORK') {
-      throw new Error('Lỗi kết nối mạng - Kiểm tra CORS hoặc backend');
-    } else if (error.response?.status === 413) {
-      throw new Error('File quá lớn - Vượt giới hạn server');
-    } else {
-      throw new Error(error.response?.data?.msg || error.message || 'Upload failed');
-    }
+    console.error('❌ Upload error:', error);
+    throw error;
   }
 };
+
+// ========================================
+// CÁC HÀM KHÁC (GIỮ NGUYÊN)
+// ========================================
 
 /**
  * Get all media with pagination and type filter
