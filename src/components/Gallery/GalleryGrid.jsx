@@ -111,7 +111,7 @@ GalleryItem.displayName = 'GalleryItem';
 
 const DateGroup = memo(({ dateGroup, isFavoriteItem, onToggleFavorite, onImageClick, onVideoClick, onDelete }) => (
   <div className="space-y-3">
-    <div className="flex items-center gap-2 sticky top-32 bg-gradient-to-r from-pink-50 to-purple-50 py-2 px-3 rounded-lg shadow-sm z-40">
+    <div className="flex items-center gap-2 bg-gradient-to-r from-pink-50 to-purple-50 py-2 px-3 rounded-lg shadow-sm">
       <Calendar className="w-4 h-4 text-purple-500" />
       <span className="text-sm font-semibold text-purple-700">{dateGroup.date}</span>
       <span className="text-xs text-gray-500">({dateGroup.items.length})</span>

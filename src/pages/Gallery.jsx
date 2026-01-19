@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useGalleryAPI } from '../hooks/useGalleryAPI';
 import { useInfiniteScroll } from '../hooks/useInfiniteScroll';
 import { useFavorites } from '../hooks/useFavorites';
@@ -42,7 +42,6 @@ function Gallery({ onBack }) {
     loading: imageLoading,
     hasMore: imageHasMore,
     total: imageTotalCount,
-    loadInitialData: loadInitialImages,
     reset: resetImages
   } = useInfiniteScroll(loadImages, {
     threshold: 500,
@@ -55,7 +54,6 @@ function Gallery({ onBack }) {
     loading: videoLoading,
     hasMore: videoHasMore,
     total: videoTotalCount,
-    loadInitialData: loadInitialVideos,
     reset: resetVideos
   } = useInfiniteScroll(loadVideos, {
     threshold: 500,
