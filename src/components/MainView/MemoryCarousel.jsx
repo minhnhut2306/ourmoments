@@ -15,7 +15,7 @@ function MemoryCarousel({ currentSlide, onSlideChange }) {
         if (response.status === 'success') {
           const favoritesList = response.data.favorites
             .filter(fav => fav.mediaId && fav.mediaId.type === 'image')
-            .map((fav) => ({
+            .map((fav, index) => ({
               id: fav._id,
               image: fav.url || fav.mediaId.url,
               mediaId: fav.mediaId._id
@@ -33,6 +33,17 @@ function MemoryCarousel({ currentSlide, onSlideChange }) {
 
     loadFavorites();
   }, []);
+
+  // Auto slide mỗi 10s
+  useEffect(() => {
+    if (memories.length === 0) return;
+
+    const interval = setInterval(() => {
+      onSlideChange((prev) => (prev + 1) % memories.length);
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [memories.length, onSlideChange]);
 
   const getSlideStyle = (index) => {
     const diff = index - currentSlide;
