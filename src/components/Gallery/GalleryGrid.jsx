@@ -1,4 +1,4 @@
-import { Calendar, Heart, Play, Image, Video, Trash2 } from 'lucide-react';
+import { Calendar, Heart, Play, Image, Video, X } from 'lucide-react';
 import { memo } from 'react';
 
 const GalleryItem = memo(({ item, isFavorite, onToggleFavorite, onImageClick, onVideoClick, onDelete }) => {
@@ -48,12 +48,17 @@ const GalleryItem = memo(({ item, isFavorite, onToggleFavorite, onImageClick, on
             VIDEO
           </div>
 
-          {/* Delete button for video */}
+          {/* Delete button for video - top right */}
           <button
             onClick={handleDeleteClick}
-            className="absolute top-2 right-2 p-1.5 bg-black/30 backdrop-blur-sm rounded-full transition-all z-20 hover:scale-110 hover:bg-red-500"
+            className="absolute top-0.5 right-0.5 p-0.5 transition-all z-20 active:scale-95"
+            title="Xóa video"
           >
-            <Trash2 className="w-4 h-4 text-white" />
+            <X 
+              className="w-6 h-6 text-red-500" 
+              strokeWidth={3}
+              style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))' }}
+            />
           </button>
         </>
       ) : (
@@ -61,30 +66,40 @@ const GalleryItem = memo(({ item, isFavorite, onToggleFavorite, onImageClick, on
           <img
             src={item.url}
             alt={item.name}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+            className="w-full h-full object-cover transition-transform duration-300"
             loading="lazy"
           />
           
-          {/* Favorite button */}
+          {/* Gradient overlay on hover */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          
+          {/* Favorite button - top left */}
           <button
             onClick={handleFavoriteClick}
-            className="absolute top-2 left-2 p-1.5 bg-black/30 backdrop-blur-sm rounded-full transition-all z-20 hover:scale-110"
+            className="absolute top-0.5 left-0.5 p-0.5 transition-all z-20 active:scale-95"
+            title={isFavorite ? "Bỏ yêu thích" : "Thêm vào yêu thích"}
           >
             <Heart
-              className={`w-5 h-5 transition-all ${
-                isFavorite ? 'text-red-500 scale-110' : 'text-white'
+              className={`w-5 h-5 transition-colors ${
+                isFavorite ? 'text-red-500' : 'text-white'
               }`}
               strokeWidth={2}
               fill={isFavorite ? '#ef4444' : 'none'}
+              style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}
             />
           </button>
 
-          {/* Delete button */}
+          {/* Delete button - top right */}
           <button
             onClick={handleDeleteClick}
-            className="absolute top-2 right-2 p-1.5 bg-black/30 backdrop-blur-sm rounded-full transition-all z-20 hover:scale-110 hover:bg-red-500"
+            className="absolute top-0.5 right-0.5 p-0.5 transition-all z-20 active:scale-95"
+            title="Xóa ảnh"
           >
-            <Trash2 className="w-4 h-4 text-white" />
+            <X 
+              className="w-6 h-6 text-red-500" 
+              strokeWidth={3}
+              style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))' }}
+            />
           </button>
         </>
       )}

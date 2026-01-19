@@ -48,16 +48,7 @@ function DeleteConfirmModal({ show, item, onClose, onConfirm, deleting }) {
                 className="w-full h-32 object-cover rounded"
               />
             )}
-            <p className="text-xs text-gray-500 mt-2 truncate">
-              {item.name}
-            </p>
-          </div>
-
-          <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <p className="text-xs text-yellow-800 flex items-start gap-2">
-              <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-              <span>Hành động này không thể hoàn tác!</span>
-            </p>
+            
           </div>
         </div>
 
