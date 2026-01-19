@@ -328,7 +328,7 @@ function Gallery({ onBack }) {
               </div>
               
               <p className="text-gray-700 text-lg font-bold tracking-wide" style={{ textShadow: '0 2px 8px rgba(0, 0, 0, 0.3)' }}>
-                Đang tải thêm...
+                Đang tải...
               </p>
               
               <style>{`
