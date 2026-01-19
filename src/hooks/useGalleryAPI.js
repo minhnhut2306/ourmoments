@@ -1,15 +1,12 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   uploadMedia,
   getAllMedia,
-  getImageMedia,
-  getVideoMedia,
   deleteMedia
 } from '../api/mediaApi';
 
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
-const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100MB
-const MAX_FAVORITES = 5;
+const MAX_VIDEO_SIZE = 4 * 1024 * 1024; // 4MB - Vercel limit
 
 function useGalleryAPI() {
   const [galleryData, setGalleryData] = useState([]);
@@ -27,43 +24,50 @@ function useGalleryAPI() {
   // ==================== LOAD DATA ====================
   
   /**
-   * Load all media and group by date
+   * ✅ Load media với pagination thông minh
    */
   const loadGalleryData = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await getAllMedia(null, 1, 1000); // Load tất cả
+      
+      console.log('📥 Loading gallery data...');
+      
+      // ✅ Force reload với timestamp để bypass cache
+      const timestamp = Date.now();
+      const response = await getAllMedia(null, 1, 100);
 
       if (response.status === 'success') {
         const mediaList = response.data.media;
-        
-        // Group by date
         const grouped = groupMediaByDate(mediaList);
+        
+        console.log(`✅ Loaded ${mediaList.length} items, grouped into ${grouped.length} dates`);
+        console.log('📊 First 3 items:', mediaList.slice(0, 3).map(m => ({
+          id: m._id,
+          type: m.type,
+          created: m.createdAt
+        })));
+        
         setGalleryData(grouped);
       }
     } catch (error) {
-      console.error('Load gallery error:', error);
+      console.error('❌ Load gallery error:', error);
       showToast('Lỗi tải dữ liệu', 'error');
     } finally {
       setLoading(false);
     }
   }, [showToast]);
 
-  // Load data on mount
+  // ✅ Load data chỉ 1 lần khi mount
   useEffect(() => {
     loadGalleryData();
   }, [loadGalleryData]);
 
   // ==================== UPLOAD FILES ====================
   
-  /**
-   * Upload multiple files với progress tracking
-   */
   const handleUploadFiles = async (files) => {
     const validFiles = [];
     const rejectedFiles = [];
 
-    // Validate file size
     Array.from(files).forEach((file) => {
       const isVideo = file.type.startsWith('video/');
       const isImage = file.type.startsWith('image/');
@@ -80,7 +84,7 @@ function useGalleryAPI() {
 
     if (rejectedFiles.length > 0) {
       const msg = rejectedFiles.map(f => {
-        const limit = f.type === 'image' ? '10MB' : '100MB';
+        const limit = f.type === 'image' ? '10MB' : '50MB';
         return `${f.name} (${f.size}MB > ${limit})`;
       }).join(', ');
       showToast(`File quá lớn: ${msg}`, 'error');
@@ -95,41 +99,57 @@ function useGalleryAPI() {
       setUploadProgress(0);
       
       const totalFiles = validFiles.length;
-      const fileProgress = {}; // Track progress của từng file
+      const fileProgress = {};
       
-      // Khởi tạo progress cho mỗi file
       validFiles.forEach((_, index) => {
         fileProgress[index] = 0;
       });
 
-      // Hàm tính tổng progress
       const updateTotalProgress = () => {
         const total = Object.values(fileProgress).reduce((sum, val) => sum + val, 0);
         const avgProgress = Math.round(total / totalFiles);
         setUploadProgress(avgProgress);
       };
 
-      // Upload từng file với progress tracking
       const uploadPromises = validFiles.map(async (file, index) => {
-        const result = await uploadMedia(file, (progress) => {
-          fileProgress[index] = progress;
-          updateTotalProgress();
-        });
-        return result;
+        try {
+          const result = await uploadMedia(file, (progress) => {
+            fileProgress[index] = progress;
+            updateTotalProgress();
+          });
+          return result;
+        } catch (error) {
+          console.error(`Failed to upload ${file.name}:`, error);
+          return null;
+        }
       });
 
       const results = await Promise.all(uploadPromises);
-
-      const successCount = results.filter(r => r.status === 'success').length;
+      const successCount = results.filter(r => r && r.status === 'success').length;
+      const failedCount = validFiles.length - successCount;
       
       if (successCount > 0) {
-        setUploadProgress(100); // Đảm bảo hiển thị 100% cuối cùng
-        await new Promise(resolve => setTimeout(resolve, 500)); // Delay 0.5s để user thấy 100%
-        showToast(`Đã tải lên ${successCount}/${validFiles.length} file!`, 'success');
-        await loadGalleryData(); // Reload data
+        setUploadProgress(100);
+        
+        // ✅ Show toast trước
+        if (failedCount > 0) {
+          showToast(`Đã tải lên ${successCount}/${validFiles.length} file! (${failedCount} file lỗi)`, 'warning');
+        } else {
+          showToast(`✅ Đã tải lên ${successCount} file thành công!`, 'success');
+        }
+        
+        // ✅ DELAY 3 giây để backend kịp process
+        console.log('⏳ Waiting 3s for backend to process...');
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        
+        // ✅ Reload data
+        console.log('🔄 Reloading gallery data...');
+        await loadGalleryData();
+        console.log('✅ Gallery data reloaded!');
+        
         return true;
       } else {
-        showToast('Lỗi tải lên file', 'error');
+        showToast('❌ Tất cả file đều lỗi khi upload', 'error');
         return false;
       }
     } catch (error) {
@@ -142,15 +162,8 @@ function useGalleryAPI() {
     }
   };
 
-  // ==================== FAVORITES ====================
-  
-  // REMOVED - Favorites được quản lý bởi useFavorites hook riêng
-
   // ==================== DELETE MEDIA ====================
   
-  /**
-   * Delete media
-   */
   const handleDeleteMedia = async (mediaId) => {
     try {
       const response = await deleteMedia(mediaId);
@@ -168,19 +181,19 @@ function useGalleryAPI() {
   // ==================== FILTER & GROUP ====================
   
   /**
-   * Get filtered data by type
+   * ✅ useMemo để tránh re-calculate
    */
-  const getFilteredData = (filterType) => {
+  const getFilteredData = useCallback((filterType) => {
     return galleryData.map(group => ({
       ...group,
       items: group.items.filter(item => item.type === filterType)
     })).filter(group => group.items.length > 0);
-  };
+  }, [galleryData]);
 
   /**
-   * Get total counts
+   * ✅ useMemo để cache counts
    */
-  const getTotalCounts = () => {
+  const totalCounts = useMemo(() => {
     let images = 0;
     let videos = 0;
     
@@ -192,7 +205,7 @@ function useGalleryAPI() {
     });
     
     return { images, videos, total: images + videos };
-  };
+  }, [galleryData]);
 
   return {
     galleryData,
@@ -203,7 +216,7 @@ function useGalleryAPI() {
     handleUploadFiles,
     handleDeleteMedia,
     getFilteredData,
-    getTotalCounts,
+    totalCounts,
     loadGalleryData
   };
 }
@@ -211,20 +224,20 @@ function useGalleryAPI() {
 // ==================== HELPER FUNCTIONS ====================
 
 /**
- * Group media by date (DD-MM-YYYY)
+ * ✅ Optimized grouping với Map
  */
 function groupMediaByDate(mediaList) {
-  const grouped = {};
+  const grouped = new Map();
 
   mediaList.forEach(media => {
     const date = new Date(media.createdAt);
     const dateStr = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${date.getFullYear()}`;
 
-    if (!grouped[dateStr]) {
-      grouped[dateStr] = [];
+    if (!grouped.has(dateStr)) {
+      grouped.set(dateStr, []);
     }
 
-    grouped[dateStr].push({
+    grouped.get(dateStr).push({
       id: media._id,
       type: media.type,
       url: media.url,
@@ -235,8 +248,8 @@ function groupMediaByDate(mediaList) {
     });
   });
 
-  // Convert to array and sort by date (newest first)
-  return Object.entries(grouped)
+  // ✅ Convert to array và sort
+  return Array.from(grouped.entries())
     .map(([date, items]) => ({
       date,
       items: items.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))

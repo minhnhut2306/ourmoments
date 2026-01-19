@@ -10,6 +10,7 @@ import VideoModal from '../components/Gallery/VideoModal';
 import UploadingAnimation from '../components/Gallery/UploadingAnimation';
 import LoadingOverlay from '../components/Gallery/LoadingOverlay';
 import { downloadImage } from '../utils/downloadHelper';
+import { RefreshCw } from 'lucide-react';
 
 function Gallery({ onBack }) {
   const [selectedImage, setSelectedImage] = useState(null);
@@ -30,7 +31,8 @@ function Gallery({ onBack }) {
     toast: uploadToast,
     handleUploadFiles,
     getFilteredData,
-    getTotalCounts
+    totalCounts,
+    loadGalleryData // ✅ Expose loadGalleryData
   } = useGalleryAPI();
 
   // Favorites Hook
@@ -42,7 +44,8 @@ function Gallery({ onBack }) {
   } = useFavorites();
 
   const displayData = getFilteredData(filterType);
-  const counts = getTotalCounts();
+  // ✅ Không cần gọi totalCounts() nữa
+  const counts = totalCounts;
 
   // Handle toggle favorite với toast
   const handleToggleFavorite = async (item) => {
@@ -68,7 +71,16 @@ function Gallery({ onBack }) {
 
   const onUpload = async (files) => {
     setShowUploadModal(false); // ✅ Đóng modal ngay lập tức
-    await handleUploadFiles(files); // Upload ở background
+    const success = await handleUploadFiles(files); // Upload ở background
+    
+    // ✅ Force reload nếu upload thành công
+    if (success) {
+      console.log('✅ Upload successful, waiting then reloading...');
+      setTimeout(() => {
+        console.log('🔄 Force reloading gallery...');
+        loadGalleryData();
+      }, 1000); // Delay 1s để backend kịp process
+    }
   };
 
   return (
@@ -120,6 +132,19 @@ function Gallery({ onBack }) {
               </div>
             </div>
           )}
+
+          {/* ✅ Manual Refresh Button for testing */}
+          <button
+            onClick={() => {
+              console.log('🔄 Manual refresh triggered');
+              loadGalleryData();
+            }}
+            disabled={loading}
+            className="fixed bottom-6 right-6 z-50 p-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full shadow-lg hover:shadow-xl transition active:scale-95 disabled:opacity-50"
+            title="Refresh gallery"
+          >
+            <RefreshCw className={`w-6 h-6 ${loading ? 'animate-spin' : ''}`} />
+          </button>
 
           <UploadModal
             show={showUploadModal}

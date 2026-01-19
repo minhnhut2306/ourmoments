@@ -7,10 +7,15 @@ export const api = axios.create({
   baseURL: API_URL,
   headers: {
     "Content-Type": "application/json",
-    "Cache-Control": "no-cache",
     "Accept": "application/json",
   },
-  timeout: 60000,
+  timeout: 120000,
+  maxContentLength: Infinity,
+  maxBodyLength: Infinity,
+  withCredentials: false,
+  validateStatus: function (status) {
+    return status >= 200 && status < 500;
+  }
 });
 
 let keepAliveInterval = null;
@@ -25,9 +30,9 @@ const startKeepAlive = () => {
     } catch (error) {
       console.log('Keep-alive ping failed (server might be sleeping)');
     }
-  }, 240000);
+  }, 600000); // 10 phút
 
-  console.log('Keep-alive started - Server will stay warm');
+  console.log('Keep-alive started - Ping every 10 minutes');
 };
 
 const stopKeepAlive = () => {
@@ -43,19 +48,21 @@ if (typeof window !== 'undefined') {
   window.addEventListener('beforeunload', stopKeepAlive);
 }
 
+// ✅ NO CACHE - Simple request interceptor
 api.interceptors.request.use(
   (config) => {
-    console.log(`API Request: ${config.method?.toUpperCase()} ${config.url}`);
+    console.log(`API Request: ${config.method?.toUpperCase()} ${config.url}`, config.params);
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
+// ✅ NO CACHE - Simple response interceptor
 api.interceptors.response.use(
   (response) => {
-    console.log(`API Response: ${response.config.url} - ${response.status}`);
+    console.log(`API Response: ${response.config.url} - ${response.status}`, {
+      dataLength: response.data?.data?.media?.length || response.data?.data?.favorites?.length || 0
+    });
     return response;
   },
   async (error) => {
@@ -63,28 +70,16 @@ api.interceptors.response.use(
 
     if (error.response) {
       const { status, data } = error.response;
-
       console.error(`API Error [${status}]:`, data?.msg || error.message);
 
-      if (!originalRequest._retry && (error.code === 'ECONNABORTED' || status >= 500)) {
+      // CHỈ retry với timeout
+      if (!originalRequest._retry && error.code === 'ECONNABORTED') {
         originalRequest._retry = true;
-        
-        console.log('Retrying request due to server error/timeout...');
-        
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
+        await new Promise(resolve => setTimeout(resolve, 1000));
         return api(originalRequest);
       }
-
-      if (status === 404) {
-        console.warn("Resource not found");
-      }
-
-      if (status === 500) {
-        console.error("Server error");
-      }
     } else if (error.code === 'ECONNABORTED') {
-      console.error("Request timeout - Server might be cold starting");
+      console.error("Request timeout");
     } else {
       console.error("Network Error:", error.message);
     }

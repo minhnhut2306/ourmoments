@@ -1,19 +1,39 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+
+// ✅ Throttle helper
+function throttle(func, delay) {
+  let lastCall = 0;
+  return function(...args) {
+    const now = Date.now();
+    if (now - lastCall >= delay) {
+      lastCall = now;
+      return func(...args);
+    }
+  };
+}
 
 function usePullToRefresh() {
   const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const startYRef = useRef(0);
   const canPullRef = useRef(false);
+  const lastUpdateRef = useRef(0);
 
   const threshold = 100;
+
+  // ✅ Throttled update để giảm re-render
+  const updatePullDistance = useCallback(
+    throttle((distance) => {
+      setPullDistance(distance);
+    }, 16), // ~60fps
+    []
+  );
 
   useEffect(() => {
     const scrollContainer = document.querySelector('[data-scroll-container]');
     if (!scrollContainer) return;
 
     const handleTouchStart = (e) => {
-      // CHỈ cho phép pull khi ở TOP của trang
       if (scrollContainer.scrollTop === 0) {
         canPullRef.current = true;
         startYRef.current = e.touches[0].clientY;
@@ -26,15 +46,18 @@ function usePullToRefresh() {
       const currentY = e.touches[0].clientY;
       const distance = currentY - startYRef.current;
 
-      // CHỈ xử lý khi KÉO XUỐNG (distance > 0)
       if (distance > 0) {
-        // Damping effect: càng kéo xa thì càng chậm
-        const dampedDistance = Math.pow(distance, 0.85);
-        setPullDistance(Math.min(dampedDistance, 200));
-        
-        // Prevent scroll xuống khi đang pull
-        if (distance > 10) {
-          e.preventDefault();
+        // ✅ Throttle để giảm tải
+        const now = Date.now();
+        if (now - lastUpdateRef.current > 16) { // ~60fps
+          lastUpdateRef.current = now;
+          
+          const dampedDistance = Math.pow(distance, 0.85);
+          updatePullDistance(Math.min(dampedDistance, 200));
+          
+          if (distance > 10) {
+            e.preventDefault();
+          }
         }
       }
     };
@@ -44,17 +67,14 @@ function usePullToRefresh() {
       
       canPullRef.current = false;
 
-      // Nếu kéo đủ xa thì reload
       if (pullDistance >= threshold) {
         setIsRefreshing(true);
         
-        // Giữ animation 2s để người dùng thấy rõ
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // ✅ Delay ngắn hơn
+        await new Promise(resolve => setTimeout(resolve, 1500)); // Giảm từ 2s → 1.5s
         
-        // Reload trang
         window.location.reload();
       } else {
-        // Không đủ xa thì reset về 0
         setPullDistance(0);
       }
     };
@@ -68,7 +88,7 @@ function usePullToRefresh() {
       scrollContainer.removeEventListener('touchmove', handleTouchMove);
       scrollContainer.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [isRefreshing, pullDistance]);
+  }, [isRefreshing, pullDistance, updatePullDistance]);
 
   return {
     pullDistance,
