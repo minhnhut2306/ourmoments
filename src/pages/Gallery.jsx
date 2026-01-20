@@ -40,7 +40,6 @@ function Gallery({ onBack }) {
   const {
     data: imageData,
     loading: imageLoading,
-    hasMore: imageHasMore,
     total: imageTotalCount,
     reset: resetImages
   } = useInfiniteScroll(loadImages, {
@@ -52,7 +51,6 @@ function Gallery({ onBack }) {
   const {
     data: videoData,
     loading: videoLoading,
-    hasMore: videoHasMore,
     total: videoTotalCount,
     reset: resetVideos
   } = useInfiniteScroll(loadVideos, {
@@ -176,7 +174,6 @@ function Gallery({ onBack }) {
   };
 
   const currentLoading = filterType === 'image' ? imageLoading : videoLoading;
-  const currentHasMore = filterType === 'image' ? imageHasMore : videoHasMore;
 
   return (
     <div className="fixed inset-0 overflow-hidden" style={{ touchAction: 'pan-y' }}>
@@ -346,12 +343,6 @@ function Gallery({ onBack }) {
                   50% { opacity: 0.7; }
                 }
               `}</style>
-            </div>
-          )}
-
-          {!currentHasMore && displayData.length > 0 && (
-            <div className="text-center py-8 text-gray-500">
-              <p className="text-sm">Đã hiển thị tất cả {filterType === 'image' ? 'ảnh' : 'video'} 🎉</p>
             </div>
           )}
         </div>
