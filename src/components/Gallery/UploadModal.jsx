@@ -8,8 +8,8 @@ function UploadModal({ show, onClose, onUpload }) {
 
   if (!show) return null;
 
-  const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
-  const MAX_VIDEO_SIZE = 50 * 1024 * 1024;
+  const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
+  const MAX_VIDEO_SIZE = 99 * 1024 * 1024; // 99MB (updated)
 
   const handleFileSelect = (e) => {
     const files = Array.from(e.target.files);
@@ -38,7 +38,7 @@ function UploadModal({ show, onClose, onUpload }) {
 
     if (rejectedFiles.length > 0) {
       const msg = rejectedFiles.map(f => 
-        `${f.name} (${f.size}MB > 50MB)`
+        `${f.name} (${f.size}MB > 99MB)`
       ).join(', ');
       alert(`Video quá lớn: ${msg}`);
     }
@@ -120,7 +120,6 @@ function UploadModal({ show, onClose, onUpload }) {
             <p className="text-sm font-semibold text-green-700 text-center">
               ✓ Đã chọn {selectedFiles.length} file
             </p>
-          
           </div>
         )}
 
@@ -139,7 +138,7 @@ function UploadModal({ show, onClose, onUpload }) {
             <p className="text-gray-700 font-semibold mb-2">Chọn ảnh hoặc video</p>
             <p className="text-xs text-gray-500">
               Ảnh: JPG, PNG, HEIC (tự động nén)<br/>
-              Video: tối đa 50MB
+              Video: tối đa 99MB
             </p>
           </div>
         </label>

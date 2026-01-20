@@ -1,8 +1,8 @@
 import { useState, useCallback } from 'react';
 import { uploadMedia, getImageMedia, getVideoMedia, deleteMedia } from '../api/mediaApi';
 
-const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
-const MAX_VIDEO_SIZE = 50 * 1024 * 1024;
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_VIDEO_SIZE = 99 * 1024 * 1024; // 99MB (updated)
 
 function useGalleryAPI() {
   const [uploading, setUploading] = useState(false);
@@ -103,7 +103,7 @@ function useGalleryAPI() {
 
     if (rejectedFiles.length > 0) {
       const msg = rejectedFiles.map(f => {
-        const limit = f.type === 'image' ? '10MB' : '50MB';
+        const limit = f.type === 'image' ? '10MB' : '99MB';
         return `${f.name} (${f.size}MB > ${limit})`;
       }).join(', ');
       showToast(`File quá lớn: ${msg}`, 'error');
