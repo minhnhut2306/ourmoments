@@ -4,7 +4,6 @@ import { useTimeCounter } from '../hooks/useTimeCounter';
 import { usePullToRefresh } from '../hooks/usePullToRefresh';
 import HeaderSection from '../components/MainView/HeaderSection';
 import MemoryCarousel from '../components/MainView/MemoryCarousel';
-import MusicPlayer from '../components/MainView/MusicPlayer';
 import PullRefreshAnimation from '../components/MainView/PullRefreshAnimation';
 import PasswordModal from '../components/MainView/PasswordModal';
 
@@ -53,8 +52,6 @@ function MainView({ onShowGallery }) {
               currentSlide={currentSlide}
               onSlideChange={setCurrentSlide}
             />
-            
-            <MusicPlayer />
 
             <button 
               onClick={handleGalleryClick}
