@@ -1,8 +1,26 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-function useTimeCounter(initialDays = 1083) {
-  const [days] = useState(initialDays);
+function useTimeCounter() {
+  const startDate = new Date('2023-01-24'); 
+  
+  const calculateDays = () => {
+    const now = new Date();
+    const diffTime = Math.abs(now - startDate);
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
+  const [days, setDays] = useState(calculateDays());
   const [timeMode, setTimeMode] = useState(0);
+
+  // Cập nhật mỗi ngày
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDays(calculateDays());
+    }, 1000 * 60 * 60); // Cập nhật mỗi giờ
+
+    return () => clearInterval(interval);
+  }, []);
 
   const totalYears = Math.floor(days / 365);
   const remainingDaysAfterYears = days % 365;

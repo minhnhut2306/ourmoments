@@ -18,22 +18,24 @@ function useInfiniteScroll(loadMoreFn, options = {}) {
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState(null);
-  const [total, setTotal] = useState(0); // Thêm total count
+  const [total, setTotal] = useState(0);
   
   const loadingRef = useRef(false);
+  const isInitialMount = useRef(true);
 
   // Load initial data
   const loadInitialData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
+      loadingRef.current = true;
       
       const result = await loadMoreFn(initialPage, pageSize);
       
       if (result && result.data) {
         setData(result.data);
         setHasMore(result.hasMore ?? (result.data.length === pageSize));
-        setTotal(result.total || result.data.length); // Lưu total
+        setTotal(result.total || result.data.length);
         setPage(initialPage + 1);
       }
     } catch (err) {
@@ -41,12 +43,16 @@ function useInfiniteScroll(loadMoreFn, options = {}) {
       setError(err.message);
     } finally {
       setLoading(false);
+      loadingRef.current = false;
     }
   }, [loadMoreFn, initialPage, pageSize]);
 
   // Auto load initial data on mount
   useEffect(() => {
-    loadInitialData();
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      loadInitialData();
+    }
   }, [loadInitialData]);
 
   // Load more data
@@ -63,7 +69,7 @@ function useInfiniteScroll(loadMoreFn, options = {}) {
       if (result && result.data) {
         setData(prev => [...prev, ...result.data]);
         setHasMore(result.hasMore ?? (result.data.length === pageSize));
-        setTotal(result.total || 0); // Update total nếu có
+        setTotal(result.total || 0);
         setPage(prev => prev + 1);
       }
     } catch (err) {
@@ -98,15 +104,20 @@ function useInfiniteScroll(loadMoreFn, options = {}) {
     }
   }, [loadMore, threshold, hasMore]);
 
-  // Reset function
+  // Reset function - FIX: Clear data trước khi load lại
   const reset = useCallback(() => {
-    setData([]);
+    console.log('🔄 Resetting infinite scroll...');
+    setData([]); // Clear data cũ
     setPage(initialPage);
     setHasMore(true);
     setError(null);
     setTotal(0);
     loadingRef.current = false;
-    loadInitialData();
+    
+    // Load lại data mới sau khi clear
+    setTimeout(() => {
+      loadInitialData();
+    }, 0);
   }, [initialPage, loadInitialData]);
 
   return {

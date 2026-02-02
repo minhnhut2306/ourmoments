@@ -137,9 +137,9 @@ function MemoryCarousel({ currentSlide, onSlideChange }) {
       <div className="bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 rounded-3xl p-6 shadow-2xl relative overflow-hidden border border-white/50">
         <div className="text-center mb-4">
           <h3 className="text-xl font-bold bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent drop-shadow-sm">
-            Cùng nhau viết nên câu chuyện
+            Ảnh yêu thích
           </h3>
-          <p className="text-sm text-gray-500 mt-1.5 font-medium">Những trang đẹp nhất ✨</p>
+          <p className="text-sm text-gray-500 mt-1.5 font-medium">Những khoảnh khắc đáng nhớ 💫</p>
           
           <div className="flex items-center justify-center gap-2 mt-2">
             <div className="w-8 h-[2px] bg-gradient-to-r from-transparent to-pink-300 rounded-full"></div>
@@ -173,9 +173,9 @@ function MemoryCarousel({ currentSlide, onSlideChange }) {
       
       <div className="text-center mb-4 relative z-10">
         <h3 className="text-xl font-bold bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent drop-shadow-sm">
-          Cùng nhau viết nên câu chuyện
+          Ảnh yêu thích
         </h3>
-        <p className="text-sm text-gray-500 mt-1.5 font-medium">Những trang đẹp nhất ✨</p>
+        <p className="text-sm text-gray-500 mt-1.5 font-medium">Những khoảnh khắc đáng nhớ 💫</p>
         
         <div className="flex items-center justify-center gap-2 mt-2">
           <div className="w-8 h-[2px] bg-gradient-to-r from-transparent to-pink-300 rounded-full"></div>

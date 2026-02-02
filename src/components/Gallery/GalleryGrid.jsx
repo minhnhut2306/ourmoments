@@ -141,9 +141,11 @@ function GalleryGrid({
   onToggleFavorite, 
   onImageClick, 
   onVideoClick,
-  onDelete
+  onDelete,
+  loading
 }) {
-  if (displayData.length === 0) {
+  // Chỉ hiện empty state khi KHÔNG loading và thực sự không có data
+  if (!loading && displayData.length === 0) {
     return (
       <div className="text-center py-12">
         <div className="text-gray-400 mb-2">

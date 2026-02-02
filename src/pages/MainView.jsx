@@ -6,14 +6,25 @@ import HeaderSection from '../components/MainView/HeaderSection';
 import MemoryCarousel from '../components/MainView/MemoryCarousel';
 import MusicPlayer from '../components/MainView/MusicPlayer';
 import PullRefreshAnimation from '../components/MainView/PullRefreshAnimation';
+import PasswordModal from '../components/MainView/PasswordModal';
 
 function MainView({ onShowGallery }) {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const { timeDisplay, handleTimeClick } = useTimeCounter(1083);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const { timeDisplay, handleTimeClick } = useTimeCounter();
   const { pullDistance, isRefreshing, threshold } = usePullToRefresh();
 
+  const handleGalleryClick = () => {
+    setShowPasswordModal(true);
+  };
+
+  const handlePasswordSuccess = () => {
+    setShowPasswordModal(false);
+    onShowGallery();
+  };
+
   return (
-    <div className="fixed inset-0 overflow-hidden bg-gradient-to-br from-pink-300 via-purple-300 to-blue-300" style={{ touchAction: 'pan-y' }}>
+    <div className="fixed inset-0 overflow-hidden bg-pink-100" style={{ touchAction: 'pan-y' }}>
       
       <PullRefreshAnimation 
         pullDistance={pullDistance}
@@ -30,14 +41,14 @@ function MainView({ onShowGallery }) {
           transition: isRefreshing || pullDistance === 0 ? 'transform 0.3s ease-out' : 'none'
         }}
       >
-        <div className="min-h-full bg-gradient-to-b from-white via-pink-50 to-purple-50">
+        <div className="min-h-full bg-pink-50">
           
           <HeaderSection 
             timeDisplay={timeDisplay}
             onTimeClick={handleTimeClick}
           />
 
-          <div className="p-4 space-y-4 bg-gradient-to-b from-pink-50 via-purple-50 to-blue-50">
+          <div className="p-4 space-y-4 bg-pink-50">
             <MemoryCarousel 
               currentSlide={currentSlide}
               onSlideChange={setCurrentSlide}
@@ -46,8 +57,8 @@ function MainView({ onShowGallery }) {
             <MusicPlayer />
 
             <button 
-              onClick={onShowGallery}
-              className="w-full bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition text-base active:scale-95"
+              onClick={handleGalleryClick}
+              className="w-full bg-pink-300 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:bg-pink-400 transition text-base active:scale-95"
             >
               <Grid size={22} />
               Xem tất cả ảnh & video
@@ -55,6 +66,12 @@ function MainView({ onShowGallery }) {
           </div>
         </div>
       </div>
+
+      <PasswordModal
+        show={showPasswordModal}
+        onClose={() => setShowPasswordModal(false)}
+        onSuccess={handlePasswordSuccess}
+      />
     </div>
   );
 }

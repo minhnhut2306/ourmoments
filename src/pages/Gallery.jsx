@@ -176,13 +176,13 @@ function Gallery({ onBack }) {
   const currentLoading = filterType === 'image' ? imageLoading : videoLoading;
 
   return (
-    <div className="fixed inset-0 overflow-hidden" style={{ touchAction: 'pan-y' }}>
+    <div className="fixed inset-0 overflow-hidden bg-pink-100" style={{ touchAction: 'pan-y' }}>
       <div 
         data-scroll-container
-        className="w-full h-full overflow-y-auto overflow-x-hidden bg-gradient-to-br from-pink-200 via-purple-200 to-blue-200" 
+        className="w-full h-full overflow-y-auto overflow-x-hidden bg-pink-100" 
         style={{ touchAction: 'pan-y' }}
       >
-        <div className="min-h-full bg-gradient-to-b from-white via-pink-50 to-purple-50">
+        <div className="min-h-full bg-pink-50">
 
           <GalleryHeader
             favorites={getFavoritesCount()}
@@ -226,7 +226,7 @@ function Gallery({ onBack }) {
           <button
             onClick={handleRefresh}
             disabled={currentLoading}
-            className="fixed bottom-6 right-6 z-50 p-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full shadow-lg hover:shadow-xl transition active:scale-95 disabled:opacity-50"
+            className="fixed bottom-6 right-6 z-50 p-4 bg-gradient-to-r from-pink-400 to-pink-500 text-white rounded-full shadow-lg hover:shadow-xl transition active:scale-95 disabled:opacity-50"
             title="Refresh gallery"
           >
             <RefreshCw className={'w-6 h-6 ' + (currentLoading ? 'animate-spin' : '')} />
@@ -246,12 +246,12 @@ function Gallery({ onBack }) {
             onImageClick={setSelectedImage}
             onVideoClick={setSelectedVideo}
             onDelete={handleDeleteClick}
+            loading={currentLoading}
           />
 
           {currentLoading && (
             <div className="flex flex-col justify-center items-center py-12">
               <div className="relative w-24 h-24 mb-4">
-                {/* Outer spinning rings */}
                 <div 
                   className="absolute w-24 h-24 rounded-full border-[4px] border-white/30 border-t-white border-r-pink-200"
                   style={{ 
@@ -261,14 +261,13 @@ function Gallery({ onBack }) {
                 />
                 
                 <div 
-                  className="absolute w-24 h-24 rounded-full border-[4px] border-transparent border-b-purple-200 border-l-blue-200"
+                  className="absolute w-24 h-24 rounded-full border-[4px] border-transparent border-b-pink-300 border-l-pink-200"
                   style={{ 
                     animation: 'spin 2s linear infinite reverse',
-                    filter: 'drop-shadow(0 0 8px rgba(168, 85, 247, 0.5))'
+                    filter: 'drop-shadow(0 0 8px rgba(251, 207, 232, 0.5))'
                   }}
                 />
 
-                {/* Center heart */}
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div 
                     className="absolute inset-0 rounded-full blur-2xl opacity-70"
@@ -303,7 +302,6 @@ function Gallery({ onBack }) {
                   </svg>
                 </div>
 
-                {/* Orbiting sparkles */}
                 {[0, 60, 120, 180, 240, 300].map(function(angle, i) {
                   return (
                     <div
