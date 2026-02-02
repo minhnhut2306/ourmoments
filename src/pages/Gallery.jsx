@@ -1,15 +1,11 @@
 import { useState, useMemo } from 'react';
 import { useGalleryAPI } from '../hooks/useGalleryAPI';
 import { useInfiniteScroll } from '../hooks/useInfiniteScroll';
-import { useFavorites } from '../hooks/useFavorites';
 import { usePrefetch } from '../hooks/usePrefetch';
 import GalleryHeader from '../components/Gallery/GalleryHeader';
 import GalleryGrid from '../components/Gallery/GalleryGrid';
-import UploadModal from '../components/Gallery/UploadModal';
 import ImageModal from '../components/Gallery/ImageModal';
 import VideoModal from '../components/Gallery/VideoModal';
-import DeleteConfirmModal from '../components/Gallery/DeleteConfirmModal';
-import UploadingAnimation from '../components/Gallery/UploadingAnimation';
 import { downloadImage } from '../utils/downloadHelper';
 import { RefreshCw } from 'lucide-react';
 
@@ -17,24 +13,13 @@ function Gallery({ onBack }) {
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [downloading, setDownloading] = useState(false);
-  const [showUploadModal, setShowUploadModal] = useState(false);
   const [filterType, setFilterType] = useState('image');
-  const [localToast, setLocalToast] = useState({ show: false, message: '', type: 'success' });
-  
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState(null);
 
   usePrefetch();
 
   const {
     loadImages,
-    loadVideos,
-    uploading,
-    uploadProgress,
-    deleting,
-    toast: uploadToast,
-    handleUploadFiles,
-    handleDeleteMedia
+    loadVideos
   } = useGalleryAPI();
 
   const {
@@ -58,13 +43,6 @@ function Gallery({ onBack }) {
     initialPage: 1,
     pageSize: 20
   });
-
-  const {
-    isFavoriteItem,
-    toggleFavorite: toggleFav,
-    MAX_FAVORITES,
-    getFavoritesCount
-  } = useFavorites();
 
   const displayData = useMemo(() => {
     const rawData = filterType === 'image' ? imageData : videoData;
@@ -113,58 +91,12 @@ function Gallery({ onBack }) {
     };
   }, [imageTotalCount, videoTotalCount]);
 
-  const showToast = function(message, type) {
-    setLocalToast({ show: true, message: message, type: type || 'success' });
-    setTimeout(function() {
-      setLocalToast({ show: false, message: '', type: 'success' });
-    }, 3000);
-  };
-
-  const handleToggleFavorite = async function(item) {
-    const result = await toggleFav(item);
-    if (result) {
-      showToast(result.message, result.type || 'success');
-    }
-  };
-
   const handleDownload = async function(url, filename) {
     setDownloading(true);
     const success = await downloadImage(url, filename);
     setDownloading(false);
     if (!success) {
       alert('Không thể tải xuống. Vui lòng thử lại!');
-    }
-  };
-
-  const onUpload = async function(files) {
-    setShowUploadModal(false);
-    const success = await handleUploadFiles(files);
-    
-    if (success) {
-      setTimeout(function() {
-        resetImages();
-        resetVideos();
-      }, 1000);
-    }
-  };
-
-  const handleDeleteClick = function(item) {
-    setItemToDelete(item);
-    setShowDeleteModal(true);
-  };
-
-  const confirmDelete = async function() {
-    if (!itemToDelete) return;
-
-    const success = await handleDeleteMedia(itemToDelete.id);
-    
-    if (success) {
-      setShowDeleteModal(false);
-      setItemToDelete(null);
-      showToast('Đã xóa ' + (itemToDelete.type === 'video' ? 'video' : 'ảnh') + ' thành công', 'success');
-      
-      resetImages();
-      resetVideos();
     }
   };
 
@@ -185,43 +117,13 @@ function Gallery({ onBack }) {
         <div className="min-h-full bg-pink-50">
 
           <GalleryHeader
-            favorites={getFavoritesCount()}
-            maxFavorites={MAX_FAVORITES}
-            onUploadClick={function() { setShowUploadModal(true); }}
+            favorites={0}
+            maxFavorites={5}
             onBackClick={onBack}
             filterType={filterType}
             setFilterType={setFilterType}
             counts={totalCounts}
           />
-
-          <UploadingAnimation uploading={uploading} progress={uploadProgress} />
-
-          {uploadToast.show && (
-            <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50">
-              <div className={'px-4 py-2 rounded-lg shadow-lg text-white text-sm font-medium ' + (
-                uploadToast.type === 'success' ? 'bg-green-500' :
-                uploadToast.type === 'warning' ? 'bg-orange-500' :
-                uploadToast.type === 'error' ? 'bg-red-500' :
-                'bg-blue-500'
-              )}>
-                {uploadToast.message}
-              </div>
-            </div>
-          )}
-
-          {localToast.show && (
-            <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50">
-              <div className={'px-4 py-2 rounded-lg shadow-lg text-white text-sm font-medium ' + (
-                localToast.type === 'success' ? 'bg-green-500' :
-                localToast.type === 'warning' ? 'bg-orange-500' :
-                localToast.type === 'error' ? 'bg-red-500' :
-                localToast.type === 'info' ? 'bg-blue-500' :
-                'bg-gray-500'
-              )}>
-                {localToast.message}
-              </div>
-            </div>
-          )}
 
           <button
             onClick={handleRefresh}
@@ -232,20 +134,11 @@ function Gallery({ onBack }) {
             <RefreshCw className={'w-6 h-6 ' + (currentLoading ? 'animate-spin' : '')} />
           </button>
 
-          <UploadModal
-            show={showUploadModal}
-            onClose={function() { setShowUploadModal(false); }}
-            onUpload={onUpload}
-          />
-
           <GalleryGrid
             displayData={displayData}
             filterType={filterType}
-            isFavoriteItem={isFavoriteItem}
-            onToggleFavorite={handleToggleFavorite}
             onImageClick={setSelectedImage}
             onVideoClick={setSelectedVideo}
-            onDelete={handleDeleteClick}
             loading={currentLoading}
           />
 
@@ -356,17 +249,6 @@ function Gallery({ onBack }) {
       <VideoModal
         video={selectedVideo}
         onClose={function() { setSelectedVideo(null); }}
-      />
-
-      <DeleteConfirmModal
-        show={showDeleteModal}
-        item={itemToDelete}
-        onClose={function() {
-          setShowDeleteModal(false);
-          setItemToDelete(null);
-        }}
-        onConfirm={confirmDelete}
-        deleting={deleting}
       />
     </div>
   );

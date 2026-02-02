@@ -1,23 +1,13 @@
-import { Calendar, Heart, Play, Image, Video, X } from 'lucide-react';
+import { Calendar, Play, Image, Video } from 'lucide-react';
 import { memo } from 'react';
 
-const GalleryItem = memo(({ item, isFavorite, onToggleFavorite, onImageClick, onVideoClick, onDelete }) => {
+const GalleryItem = memo(({ item, onImageClick, onVideoClick }) => {
   const handleClick = () => {
     if (item.type === 'video') {
       onVideoClick(item);
     } else {
       onImageClick(item);
     }
-  };
-
-  const handleFavoriteClick = (e) => {
-    e.stopPropagation();
-    onToggleFavorite(item);
-  };
-
-  const handleDeleteClick = (e) => {
-    e.stopPropagation();
-    onDelete(item);
   };
 
   return (
@@ -47,19 +37,6 @@ const GalleryItem = memo(({ item, isFavorite, onToggleFavorite, onImageClick, on
           <div className="absolute top-2 left-2 bg-purple-600 text-white px-2 py-1 rounded-md text-xs font-semibold">
             VIDEO
           </div>
-
-          {/* Delete button for video - top right */}
-          <button
-            onClick={handleDeleteClick}
-            className="absolute top-1 right-1 p-1 transition-all z-20 active:scale-95"
-            title="Xóa video"
-          >
-            <X 
-              className="w-6 h-6 text-red-500" 
-              strokeWidth={3}
-              style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))' }}
-            />
-          </button>
         </>
       ) : (
         <>
@@ -72,35 +49,6 @@ const GalleryItem = memo(({ item, isFavorite, onToggleFavorite, onImageClick, on
           
           {/* Gradient overlay on hover */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          
-          {/* Favorite button - top left */}
-          <button
-            onClick={handleFavoriteClick}
-            className="absolute top-1 left-1 p-1 transition-all z-20 active:scale-95"
-            title={isFavorite ? "Bỏ yêu thích" : "Thêm vào yêu thích"}
-          >
-            <Heart
-              className={`w-5 h-5 transition-colors ${
-                isFavorite ? 'text-red-500' : 'text-white'
-              }`}
-              strokeWidth={2}
-              fill={isFavorite ? '#ef4444' : 'none'}
-              style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}
-            />
-          </button>
-
-          {/* Delete button - top right */}
-          <button
-            onClick={handleDeleteClick}
-            className="absolute top-1 right-1 p-1 transition-all z-20 active:scale-95"
-            title="Xóa ảnh"
-          >
-            <X 
-              className="w-6 h-6 text-red-500" 
-              strokeWidth={3}
-              style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))' }}
-            />
-          </button>
         </>
       )}
     </div>
@@ -109,7 +57,7 @@ const GalleryItem = memo(({ item, isFavorite, onToggleFavorite, onImageClick, on
 
 GalleryItem.displayName = 'GalleryItem';
 
-const DateGroup = memo(({ dateGroup, isFavoriteItem, onToggleFavorite, onImageClick, onVideoClick, onDelete }) => (
+const DateGroup = memo(({ dateGroup, onImageClick, onVideoClick }) => (
   <div className="space-y-3">
     <div className="flex items-center gap-2 bg-gradient-to-r from-pink-50 to-purple-50 py-2 px-3 rounded-lg shadow-sm">
       <Calendar className="w-4 h-4 text-purple-500" />
@@ -121,11 +69,8 @@ const DateGroup = memo(({ dateGroup, isFavoriteItem, onToggleFavorite, onImageCl
         <GalleryItem
           key={item.id}
           item={item}
-          isFavorite={isFavoriteItem(item.id)}
-          onToggleFavorite={onToggleFavorite}
           onImageClick={onImageClick}
           onVideoClick={onVideoClick}
-          onDelete={onDelete}
         />
       ))}
     </div>
@@ -137,11 +82,8 @@ DateGroup.displayName = 'DateGroup';
 function GalleryGrid({ 
   displayData, 
   filterType, 
-  isFavoriteItem, 
-  onToggleFavorite, 
   onImageClick, 
   onVideoClick,
-  onDelete,
   loading
 }) {
   // Chỉ hiện empty state khi KHÔNG loading và thực sự không có data
@@ -165,11 +107,8 @@ function GalleryGrid({
         <DateGroup
           key={dateGroup.date}
           dateGroup={dateGroup}
-          isFavoriteItem={isFavoriteItem}
-          onToggleFavorite={onToggleFavorite}
           onImageClick={onImageClick}
           onVideoClick={onVideoClick}
-          onDelete={onDelete}
         />
       ))}
     </div>
