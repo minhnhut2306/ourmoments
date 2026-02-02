@@ -8,20 +8,11 @@ import MusicPlayer from '../components/MainView/MusicPlayer';
 import PullRefreshAnimation from '../components/MainView/PullRefreshAnimation';
 import PasswordModal from '../components/MainView/PasswordModal';
 
-function MainView({ onShowGallery }) {
+function MainView() {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
   const { timeDisplay, handleTimeClick } = useTimeCounter();
   const { pullDistance, isRefreshing, threshold } = usePullToRefresh();
 
-  const handleGalleryClick = () => {
-    setShowPasswordModal(true);
-  };
-
-  const handlePasswordSuccess = () => {
-    setShowPasswordModal(false);
-    onShowGallery();
-  };
 
   return (
     <div className="fixed inset-0 overflow-hidden bg-pink-100" style={{ touchAction: 'pan-y' }}>
@@ -55,23 +46,9 @@ function MainView({ onShowGallery }) {
             />
             
             <MusicPlayer />
-
-            <button 
-              onClick={handleGalleryClick}
-              className="w-full bg-pink-300 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:bg-pink-400 transition text-base active:scale-95"
-            >
-              <Grid size={22} />
-              Xem tất cả ảnh & video
-            </button>
           </div>
         </div>
       </div>
-
-      <PasswordModal
-        show={showPasswordModal}
-        onClose={() => setShowPasswordModal(false)}
-        onSuccess={handlePasswordSuccess}
-      />
     </div>
   );
 }
