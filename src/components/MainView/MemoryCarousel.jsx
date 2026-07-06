@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, memo } from 'react';
 import { Heart } from 'lucide-react';
 import { getAllFavorites } from '../../api/favoritesApi';
 import LoadingHeartAnimation from '../Gallery/LoadingHeartAnimation';
+import { getGalleryThumbUrl } from '../../utils/cloudinaryHelper';
 
 const SlideItem = memo(({ memory, index, currentSlide, totalSlides, onClick }) => {
   const getSlideStyle = useMemo(() => {
@@ -46,11 +47,12 @@ const SlideItem = memo(({ memory, index, currentSlide, totalSlides, onClick }) =
       onClick={() => onClick(index)}
     >
       <div className="w-full h-full rounded-2xl shadow-2xl overflow-hidden relative border-[5px] border-white/90 backdrop-blur-sm">
-        <img 
-          src={memory.image} 
+        <img
+          src={getGalleryThumbUrl(memory.image, 400)}
           alt={`Memory ${memory.id}`}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
           loading="lazy"
+          decoding="async"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
       </div>
@@ -73,10 +75,11 @@ const Thumbnail = memo(({ memory, index, isActive, onClick }) => (
     }`}
   >
     <img
-      src={memory.image}
+      src={getGalleryThumbUrl(memory.image, 100)}
       alt={`Memory ${memory.id}`}
       className="w-full h-full object-cover"
       loading="lazy"
+      decoding="async"
     />
   </button>
 ));

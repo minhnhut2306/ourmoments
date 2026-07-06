@@ -1,5 +1,6 @@
 import { Calendar, Play, Image, Video } from 'lucide-react';
 import { memo } from 'react';
+import { getGalleryThumbUrl } from '../../utils/cloudinaryHelper';
 
 const GalleryItem = memo(({ item, onImageClick, onVideoClick }) => {
   const handleClick = () => {
@@ -13,27 +14,29 @@ const GalleryItem = memo(({ item, onImageClick, onVideoClick }) => {
   return (
     <div
       className="relative aspect-square rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all group cursor-pointer"
+      style={{ contentVisibility: 'auto', containIntrinsicSize: '200px 200px' }}
       onClick={handleClick}
     >
       {item.type === 'video' ? (
         <>
           {item.thumbnail ? (
             <img
-              src={item.thumbnail}
+              src={getGalleryThumbUrl(item.thumbnail)}
               alt={item.name}
               className="w-full h-full object-cover"
               loading="lazy"
+              decoding="async"
             />
           ) : (
             <div className="absolute inset-0 bg-gradient-to-br from-purple-400 to-pink-400" />
           )}
-          
+
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-center justify-center">
             <div className="bg-white rounded-full p-3 group-hover:scale-110 transition-transform shadow-lg">
               <Play className="w-6 h-6 text-purple-600 fill-purple-600" />
             </div>
           </div>
-          
+
           <div className="absolute top-2 left-2 bg-purple-600 text-white px-2 py-1 rounded-md text-xs font-semibold">
             VIDEO
           </div>
@@ -41,12 +44,13 @@ const GalleryItem = memo(({ item, onImageClick, onVideoClick }) => {
       ) : (
         <>
           <img
-            src={item.url}
+            src={getGalleryThumbUrl(item.url)}
             alt={item.name}
             className="w-full h-full object-cover transition-transform duration-300"
             loading="lazy"
+            decoding="async"
           />
-          
+
           {/* Gradient overlay on hover */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         </>

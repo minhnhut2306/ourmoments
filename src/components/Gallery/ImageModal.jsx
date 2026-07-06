@@ -1,4 +1,5 @@
 import { X, Download } from 'lucide-react';
+import { getPreviewUrl } from '../../utils/cloudinaryHelper';
 
 function ImageModal({ image, onClose, onDownload, downloading }) {
   if (!image) return null;
@@ -14,9 +15,10 @@ function ImageModal({ image, onClose, onDownload, downloading }) {
 
       <div className="max-w-4xl w-full">
         <img
-          src={image.url}
+          src={getPreviewUrl(image.url)}
           alt={image.name}
           className="w-full h-auto rounded-lg shadow-2xl"
+          decoding="async"
         />
         
         <div className="mt-4 flex gap-3 justify-center">
